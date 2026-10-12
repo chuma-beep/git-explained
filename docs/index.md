@@ -16,7 +16,7 @@ Open a figure and read its document together.
 | [tags.md](tags.md) | Figure 8 | Tags |
 
 The figures are HTML documents in this repository.
-Open `index.html` in a browser.
+Open the landing page in a browser, then select a figure.
 The control bar at the top moves between the figures.
 The control at the right changes the page between the `light` theme and the `dark` theme.
 

@@ -1,0 +1,271 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Conflicts — git, explained</title><style>
+.iso{
+  --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
+  --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
+  --anatomy-shade-0:#0f0f0f;--anatomy-shade-1:#121212;--anatomy-shade-2:#151515;--anatomy-shade-3:#181818;
+  --anatomy-lit-top:#262626;--anatomy-lit-shade:#1d1d1d;
+  --anatomy-hi:#d4d4d4;--anatomy-mid:#6a6a6a;--anatomy-lo:#3e3e3e;--anatomy-faint:#2a2a2a;--anatomy-lit:#ffffff;
+  --anatomy-halo:#050505;--anatomy-halo-opacity:.9;--anatomy-dot:#e6e6e6;
+  --anatomy-red:#ff6b6b;--anatomy-green:#6be0a0;--anatomy-blue:#6b9bff;
+  --anatomy-weight:.6px;--anatomy-ease:cubic-bezier(.32,.72,0,1);
+  --anatomy-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --anatomy-lift:inset 0 1px 0 0 #ffffff0a,inset 0 0 0 1px #ffffff06,0 0 0 1px #00000026,0 1px 1px -.5px #00000014,0 3px 3px -1.5px #00000014,0 6px 6px -3px #00000014,0 12px 12px -6px #00000014;
+}
+.iso[data-theme="light"]{
+  --anatomy-page:#f2f2ef;--anatomy-card:#fbfbfa;--anatomy-text:#57575a;--anatomy-strong:#18181a;--anatomy-muted:#8c8c90;
+  --anatomy-paper:#fbfbfa;--anatomy-face:#ffffff;--anatomy-top:#ffffff;
+  --anatomy-shade-0:#dcdcd9;--anatomy-shade-1:#e5e5e2;--anatomy-shade-2:#ededea;--anatomy-shade-3:#f4f4f1;
+  --anatomy-lit-top:#ffffff;--anatomy-lit-shade:#eeeeeb;
+  --anatomy-hi:#26262a;--anatomy-mid:#8a8a8f;--anatomy-lo:#b4b4b8;--anatomy-faint:#d4d4d6;--anatomy-lit:#000000;
+  --anatomy-halo:#8a8a80;--anatomy-halo-opacity:.32;--anatomy-dot:#3a3a3e;
+  --anatomy-red:#e5484d;--anatomy-green:#30a46c;--anatomy-blue:#3e63dd;
+  --anatomy-lift:inset 0 1px 0 0 #ffffff,0 0 0 1px #0000000f,0 1px 1px -.5px #0000000a,0 3px 3px -1.5px #0000000a,0 6px 6px -3px #0000000a,0 12px 12px -6px #0000000a;
+}
+.iso-svg{display:block;width:100%;height:auto;overflow:visible}
+.iso-svg path,.iso-svg circle{vector-effect:non-scaling-stroke}
+.iso-fill{fill:var(--anatomy-paper);stroke:none}
+.iso-solid[data-lit]>.iso-fill{fill:var(--anatomy-face)}
+.iso-shade,.iso-top{stroke:none}
+.iso-shade[data-shade="0"]{fill:var(--anatomy-shade-0)}
+.iso-shade[data-shade="1"]{fill:var(--anatomy-shade-1)}
+.iso-shade[data-shade="2"]{fill:var(--anatomy-shade-2)}
+.iso-shade[data-shade="3"]{fill:var(--anatomy-shade-3)}
+.iso-top{fill:var(--anatomy-top)}
+.iso-solid[data-lit]>.iso-top{fill:var(--anatomy-lit-top)}
+.iso-solid[data-lit]>.iso-shade{fill:var(--anatomy-lit-shade)}
+.iso-solid[data-seamless]>.iso-shade,.iso-solid[data-seamless]>.iso-top{stroke-width:.4;stroke-linejoin:round}
+.iso-solid[data-seamless]>.iso-shade[data-shade="0"]{stroke:var(--anatomy-shade-0)}
+.iso-solid[data-seamless]>.iso-shade[data-shade="1"]{stroke:var(--anatomy-shade-1)}
+.iso-solid[data-seamless]>.iso-shade[data-shade="2"]{stroke:var(--anatomy-shade-2)}
+.iso-solid[data-seamless]>.iso-shade[data-shade="3"]{stroke:var(--anatomy-shade-3)}
+.iso-solid[data-seamless]>.iso-top{stroke:var(--anatomy-top)}
+.iso-solid[data-seamless][data-lit]>.iso-top{stroke:var(--anatomy-lit-top)}
+.iso-solid[data-seamless][data-lit]>.iso-shade{stroke:var(--anatomy-lit-shade)}
+.iso-solid[data-lit]>.iso-edge{stroke:var(--anatomy-lit)}
+.iso-halo{fill:var(--anatomy-halo);stroke:none;filter:blur(9px);opacity:var(--anatomy-halo-opacity);transform:translateY(3px)}
+.iso-line{fill:none;stroke:var(--anatomy-lo);stroke-width:var(--anatomy-weight);stroke-linecap:round;stroke-linejoin:round}
+.iso-line[data-tone="hi"]{stroke:var(--anatomy-hi)}
+.iso-line[data-tone="mid"]{stroke:var(--anatomy-mid)}
+.iso-line[data-tone="lo"]{stroke:var(--anatomy-lo)}
+.iso-line[data-tone="faint"]{stroke:var(--anatomy-faint)}
+.iso-line[data-tone="lit"]{stroke:var(--anatomy-lit)}
+.iso-line[data-tone="red"]{stroke:var(--anatomy-red)}
+.iso-line[data-tone="green"]{stroke:var(--anatomy-green)}
+.iso-line[data-tone="blue"]{stroke:var(--anatomy-blue)}
+.iso-line[data-dotted]{stroke-dasharray:.01 3.5;stroke-width:1}
+.iso-line[data-dashed]{stroke-dasharray:3 3}
+.iso-line[data-flow]{stroke-dasharray:2 6}
+.iso-wire-end{fill:var(--anatomy-paper);stroke:var(--anatomy-lo);stroke-width:var(--anatomy-weight)}
+.iso-wire[data-tone="hi"] .iso-wire-end{stroke:var(--anatomy-hi)}
+.iso-wire[data-tone="mid"] .iso-wire-end{stroke:var(--anatomy-mid)}
+.iso-wire[data-tone="faint"] .iso-wire-end{stroke:var(--anatomy-faint)}
+.iso-wire[data-tone="lit"] .iso-wire-end{stroke:var(--anatomy-lit)}
+.iso-dots circle{fill:var(--anatomy-dot);stroke:none;opacity:.32}
+.iso-dots[data-tone="hi"] circle{opacity:.85}
+.iso-dots[data-tone="mid"] circle{opacity:.45}
+.iso-dots[data-tone="lo"] circle{opacity:.22}
+.iso-dots[data-tone="faint"] circle{opacity:.12}
+.iso-face-text{fill:var(--anatomy-mid);font-family:var(--anatomy-mono);letter-spacing:.04em}
+.iso-face-text[data-tone="hi"]{fill:var(--anatomy-hi)}
+.iso-face-text[data-tone="lo"]{fill:var(--anatomy-lo)}
+.iso-face-text[data-tone="faint"]{fill:var(--anatomy-faint)}
+.tb-body{fill:var(--anatomy-shade-2);stroke:none}
+.tb-shine{fill:var(--anatomy-top);stroke:none}
+.tb-shade{fill:var(--anatomy-shade-0);stroke:none}
+.tb-ring{fill:none;stroke:var(--anatomy-lo);stroke-width:.45;stroke-linecap:butt;stroke-linejoin:round}
+.tb-ring[data-tone="mid"]{stroke:var(--anatomy-mid)}
+.tb-ring[data-tone="faint"]{stroke:var(--anatomy-faint)}
+.tb-ring[data-tone="hi"]{stroke:var(--anatomy-hi)}
+@keyframes iso-flow{to{stroke-dashoffset:-32}}
+@keyframes iso-pulse{0%,100%{opacity:.18}12%{opacity:1}40%{opacity:.18}}
+.iso-line[data-flow]{animation:iso-flow 1600ms linear infinite}
+.iso-dots circle[data-pulse]{animation:iso-pulse 1600ms steps(1,end) infinite;animation-delay:var(--pulse-at,0ms)}
+.iso-figure{margin:32px 0 36px}
+.iso-plate{position:relative;padding:52px 24px;border-radius:0;background:var(--anatomy-card);box-shadow:0 0 0 1px var(--anatomy-mid);--anatomy-paper:var(--anatomy-card)}
+.iso-plate-corners{position:absolute;inset:18px 20px;pointer-events:none}
+.iso-plate-corner{position:absolute;color:var(--anatomy-muted);font-family:var(--anatomy-mono);font-size:10.5px;line-height:1;letter-spacing:.04em;white-space:nowrap}
+.iso-plate-corner[data-corner="fig"]{top:0;left:0;color:var(--anatomy-text)}
+.iso-plate-corner[data-corner="title"]{top:0;right:0;text-transform:uppercase;letter-spacing:.1em}
+.iso-plate-corner[data-corner="hint"]{bottom:0;left:0;text-transform:uppercase;letter-spacing:.1em}
+.iso-plate-corner[data-corner="readout"]{right:0;bottom:0;color:var(--anatomy-text);font-variant-numeric:tabular-nums}
+.iso-plate .iso-svg{margin:0 auto}
+.iso-legend{display:grid;gap:8px;margin-top:12px;color:var(--anatomy-muted);font-size:13px;line-height:1.55}
+.iso-keys{display:flex;flex-wrap:wrap;gap:6px 18px}
+.iso-key{display:inline-flex;align-items:center;gap:7px}
+.iso-swatch{width:16px;height:10px;flex:none;overflow:visible}
+.iso-swatch path{fill:none;stroke:var(--anatomy-hi);stroke-width:1;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.iso-swatch[data-mark="raised"] path,.iso-swatch[data-mark="flat"] path{stroke:var(--anatomy-mid)}
+.iso-swatch[data-mark="lit"] path{stroke:var(--anatomy-lit)}
+.iso-swatch[data-mark="dim"] path{stroke:var(--anatomy-lo)}
+.iso-swatch[data-mark="dotted"] path{stroke-dasharray:.01 3;stroke-width:1.4}
+.iso-swatch[data-mark="dashed"] path{stroke-dasharray:3 2.5}
+.iso-swatch[data-mark="red"] path{stroke:var(--anatomy-red)}
+.iso-swatch[data-mark="green"] path{stroke:var(--anatomy-green)}
+.iso-swatch[data-mark="blue"] path{stroke:var(--anatomy-blue)}
+.iso-swatch-crease{stroke:var(--anatomy-lo)!important}
+@media (max-width:560px){.iso-plate{padding:48px 12px 70px}.iso-plate-corner[data-corner="hint"]{bottom:18px}}
+@media (prefers-reduced-motion:reduce){.iso-line[data-flow],.iso-dots circle[data-pulse]{animation:none}}
+
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body[data-theme="light"]{color-scheme:light}
+body{margin:0;background:var(--anatomy-page);color:var(--anatomy-text);font:14px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.iso-page{width:min(720px,100% - 32px);margin:64px auto 96px}
+
+.gs-nav{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%;margin:0 auto;padding:14px 0 10px;background:linear-gradient(var(--anatomy-page) 76%,transparent);backdrop-filter:blur(6px)}
+.iso-hit{fill:transparent;stroke:none}
+
+/* A small colour language, the same in every figure:
+     blue  the other branch, the remote, origin
+     amber yours, HEAD, attention
+     green committed, resolved, clear to go
+     red   stopped, in conflict
+   Only the top face is tinted, so the four-tone shading still reads. */
+.iso{--gs-amber:#f0a24a;--gs-blue-top:#20344a;--gs-amber-top:#3b2f19;--gs-green-top:#1b3226;--gs-red-top:#3a2024}
+.iso[data-theme="light"]{--gs-amber:#b8691a;--gs-blue-top:#cfe0f5;--gs-amber-top:#f4e2bd;--gs-green-top:#cfe9da;--gs-red-top:#f5d7da}
+.tint-blue>.iso-top{fill:var(--gs-blue-top)}
+.tint-amber>.iso-top{fill:var(--gs-amber-top)}
+.tint-green>.iso-top{fill:var(--gs-green-top)}
+.tint-red>.iso-top{fill:var(--gs-red-top)}
+.tint-blue>.iso-edge{stroke:var(--anatomy-blue)}
+.tint-amber>.iso-edge{stroke:var(--gs-amber)}
+.tint-green>.iso-edge{stroke:var(--anatomy-green)}
+.tint-red>.iso-edge{stroke:var(--anatomy-red)}
+/* lamps: a filled, coloured dot instead of the default grey one */
+.iso-dots[data-tone="red"] circle{fill:var(--anatomy-red);opacity:1}
+.iso-dots[data-tone="green"] circle{fill:var(--anatomy-green);opacity:1}
+.iso-dots[data-tone="blue"] circle{fill:var(--anatomy-blue);opacity:1}
+.iso-dots[data-tone="amber"] circle{fill:var(--gs-amber);opacity:1}
+.iso-dots[data-tone="red"] circle{filter:drop-shadow(0 0 4px var(--anatomy-red))}
+.iso-dots[data-tone="green"] circle{filter:drop-shadow(0 0 4px var(--anatomy-green))}
+.iso-dots[data-tone="blue"] circle{filter:drop-shadow(0 0 4px var(--anatomy-blue))}
+.iso-dots[data-tone="amber"] circle{filter:drop-shadow(0 0 4px var(--gs-amber))}
+.iso-dots[data-glow] circle{filter:drop-shadow(0 0 5px currentColor)}
+/* a lit solid can carry a colour edge without losing its shading */
+.iso-solid[data-lit].tint-amber>.iso-edge{stroke:var(--gs-amber)}
+.iso-solid[data-lit].tint-blue>.iso-edge{stroke:var(--anatomy-blue)}
+.gs-nav-title{font:600 13px/1 var(--anatomy-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--anatomy-strong);margin:0}
+.gs-nav-sub{font:12px/1 var(--anatomy-mono);color:var(--anatomy-muted);letter-spacing:.04em}
+.gs-nav-spacer{flex:1}
+.gs-links{order:9;width:100%;display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.gs-links::-webkit-scrollbar{display:none}
+.gs-links a{white-space:nowrap}
+.gs-links a{font:11px/1 var(--anatomy-mono);letter-spacing:.05em;text-transform:uppercase;text-decoration:none;color:var(--anatomy-muted);padding:6px 9px;border-radius:999px;border:1px solid transparent;transition:color .18s var(--anatomy-ease),border-color .18s var(--anatomy-ease)}
+.gs-links a:hover{color:var(--anatomy-text);border-color:var(--anatomy-lo)}
+.gs-links a[aria-current="page"]{color:var(--anatomy-strong);background:var(--anatomy-card);box-shadow:0 0 0 1px var(--anatomy-lo) inset}
+.gs-links a:focus-visible{outline:2px solid var(--anatomy-lit);outline-offset:1px}
+.gs-switch{display:flex;gap:2px;padding:2px;border:1px solid var(--anatomy-lo);border-radius:999px}
+.gs-switch button{font:11px/1 var(--anatomy-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--anatomy-muted);background:none;border:0;border-radius:999px;padding:6px 12px;cursor:pointer;transition:color .18s var(--anatomy-ease),background .18s var(--anatomy-ease)}
+.gs-switch button:hover{color:var(--anatomy-text)}
+.gs-switch button[aria-pressed="true"]{color:var(--anatomy-strong);background:var(--anatomy-card);box-shadow:0 0 0 1px var(--anatomy-lo) inset}
+.gs-switch button:focus-visible{outline:2px solid var(--anatomy-lit);outline-offset:1px}
+@media (max-width:640px){
+  .gs-nav{gap:8px 10px;padding:10px 0 8px;align-items:center}
+  .gs-nav-title{font-size:12px;letter-spacing:.06em}
+  .gs-nav-sub{display:none}
+  .gs-links a{padding:7px 10px;font-size:10px}
+  .gs-switch button{padding:7px 12px}
+  /* Less space above the figure, and a smaller plate margin. */
+  .iso-page{margin:14px auto 40px}
+  .iso-plate{padding:44px 12px 58px}
+  .iso-figure{margin:18px 0 22px}
+  .gs-cards{grid-template-columns:1fr}
+}
+@media (max-width:380px){
+  .iso-page{margin:10px auto 32px}
+  .iso-plate{padding:40px 8px 54px}
+  .gs-nav{gap:6px 8px}
+  .gs-nav-title{font-size:11px}
+  .gs-switch button{padding:6px 9px;font-size:10px}
+  .gs-links a{padding:6px 8px}
+}
+
+/* ---- landing page ---- */
+.gs-lead{max-width:54ch;margin:4px 0 20px;font-size:15px;line-height:1.65}
+.gs-lead strong{color:var(--anatomy-strong);font-weight:600}
+.gs-hero{margin:0;background:var(--anatomy-card);box-shadow:0 0 0 1px var(--anatomy-mid)}
+.gs-hero svg{display:block;width:100%;height:auto}
+.gs-hero-cap{display:block;margin:9px 0 26px;color:var(--anatomy-muted);font:11px/1.5 var(--anatomy-mono);letter-spacing:.05em;text-transform:uppercase}
+.gs-legend{display:flex;flex-wrap:wrap;gap:7px 20px;margin:0 0 30px;color:var(--anatomy-muted);font-size:13px}
+.gs-legend span{display:inline-flex;align-items:center;gap:8px}
+.gs-dot{width:9px;height:9px;border-radius:50%;flex:none}
+.gs-dot[data-c="blue"]{background:var(--anatomy-blue)}
+.gs-dot[data-c="amber"]{background:var(--gs-amber)}
+.gs-dot[data-c="green"]{background:var(--anatomy-green)}
+.gs-dot[data-c="red"]{background:var(--anatomy-red)}
+.gs-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:12px;margin:0 0 34px;padding:0;list-style:none}
+.gs-card{display:block;padding:15px 16px 16px;background:var(--anatomy-card);box-shadow:0 0 0 1px var(--anatomy-lo);text-decoration:none;color:inherit;transition:box-shadow .18s var(--anatomy-ease),transform .18s var(--anatomy-ease)}
+.gs-card:hover{box-shadow:0 0 0 1px var(--anatomy-mid);transform:translateY(-1px)}
+.gs-card:focus-visible{outline:2px solid var(--anatomy-lit);outline-offset:2px}
+.gs-card-top{display:flex;align-items:baseline;gap:9px;margin-bottom:6px}
+.gs-fig{font:11px/1 var(--anatomy-mono);letter-spacing:.08em;color:var(--anatomy-muted)}
+.gs-card-name{font:600 14px/1.2 ui-sans-serif,system-ui,sans-serif;color:var(--anatomy-strong)}
+.gs-card-obj{display:block;font:11px/1.4 var(--anatomy-mono);letter-spacing:.03em;color:var(--gs-amber);margin-bottom:8px}
+.gs-card-idea{margin:0;font-size:13px;line-height:1.55}
+.gs-foot{display:flex;flex-wrap:wrap;gap:7px 20px;margin-top:6px;padding-top:16px;border-top:1px solid var(--anatomy-lo);color:var(--anatomy-muted);font-size:12.5px}
+.gs-foot a{color:var(--anatomy-text)}
+
+/* ---- rendered documents ---- */
+.gs-doc{max-width:68ch}
+.gs-doc h1{font-size:21px;line-height:1.3;color:var(--anatomy-strong);margin:2px 0 16px}
+.gs-doc h2{font-family:var(--anatomy-mono);font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--anatomy-muted);margin:28px 0 9px}
+.gs-doc p{margin:0 0 12px;line-height:1.7}
+.gs-doc ol{margin:0 0 14px;padding-left:1.35em}
+.gs-doc li{margin:0 0 6px;line-height:1.65}
+.gs-doc code{font-family:var(--anatomy-mono);font-size:.9em;color:var(--anatomy-strong);background:var(--anatomy-face);padding:1px 5px}
+.gs-doc a{color:var(--anatomy-blue)}
+.gs-doc table{border-collapse:collapse;margin:0 0 18px;font-size:13px}
+.gs-doc th,.gs-doc td{text-align:left;padding:7px 14px 7px 0;border-bottom:1px solid var(--anatomy-lo);vertical-align:top}
+.gs-doc th{font-family:var(--anatomy-mono);font-size:11px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--anatomy-muted)}
+.gs-doc-back{display:inline-block;margin-bottom:4px;font:11px/1 var(--anatomy-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--anatomy-muted);text-decoration:none}
+.gs-doc-back:hover{color:var(--anatomy-text)}
+</style></head><body class="iso" data-theme="light"><main class="iso-page">
+<nav class="gs-nav">
+  <h1 class="gs-nav-title">Git, explained</h1>
+  <span class="gs-nav-sub">the written notes</span>
+  <span class="gs-nav-spacer"></span>
+  <div class="gs-links"><a href="../index.html">Home</a><a href="../staging-light.html">Staging</a><a href="../git-switchyard-light.html">Branch & merge</a><a href="../clone-light.html">Clone</a><a href="../remotes-light.html">Remotes</a><a href="../conflicts-light.html" aria-current="page">Conflicts</a><a href="../rebase-light.html">Rebase</a><a href="../pull-request-light.html">Pull request</a><a href="../tags-light.html">Tags</a></div>
+  <div class="gs-switch" role="group" aria-label="Colour theme">
+    <button type="button" data-set-theme="light">Light</button>
+    <button type="button" data-set-theme="dark">Dark</button>
+  </div>
+</nav>
+<article class="gs-doc">
+  <a class="gs-doc-back" href="../index.html">&larr; All eight figures</a>
+<h1>Conflicts</h1>
+<p>Figure 5 shows two roads that become one. The road from <code>main</code> brings one wagon. The road from <code>feat</code> brings another wagon. Both wagons claim the same place.</p>
+<h2>What a conflict is</h2>
+<p>A conflict is not a fault in git. A conflict is a question that git cannot answer.</p>
+<p>A conflict occurs when two branches change the same line of a file. Git has two answers for one place. Git cannot choose the right answer. Git stops and waits for a person.</p>
+<h2>The lamp</h2>
+<p>The lamp is red while the conflict is open. The red lamp shows that git stopped.</p>
+<h2>How to resolve a conflict</h2>
+<ol><li>Open the file that git names.</li><li>Find the marks that git put in the file.</li><li>Edit the file to the answer that you want. Remove the marks.</li><li><code>git add</code> the file.</li><li><code>git commit</code> the result.</li></ol>
+<p>The lamp becomes green when the work is complete.</p>
+<h2>The important rule</h2>
+<p>Git does not resolve a conflict. A person resolves a conflict. Git stops, marks the place, and waits.</p>
+<h2>Use the figure</h2>
+<ol><li>Click the figure, or press the Space key, to merge the two roads.</li><li>The two wagons meet at the berth and the lamp becomes red.</li><li>Click again to rewrite one wagon by hand.</li><li>The lamp becomes green and both changes stay.</li></ol>
+</article></main><script type="module">
+{
+  const root = document.body;
+  const saved = localStorage.getItem("gs-theme");
+  if (saved === "light" || saved === "dark") root.dataset.theme = saved;
+  const themeButtons = [...document.querySelectorAll("[data-set-theme]")];
+  const syncTheme = () => {
+    for (const b of themeButtons) b.setAttribute("aria-pressed", String(b.dataset.setTheme === root.dataset.theme));
+  };
+  syncTheme();
+  for (const b of themeButtons) b.addEventListener("click", () => {
+    root.dataset.theme = b.dataset.setTheme;
+    localStorage.setItem("gs-theme", b.dataset.setTheme);
+    syncTheme();
+  });
+  // A touch screen has no hover. Swap the hint for one that names a gesture.
+  const touchStage = document.querySelector(".iso-stage");
+  if (touchStage && touchStage.dataset.touchHint && matchMedia("(hover: none)").matches) {
+    const hint = document.querySelector('[data-corner="hint"]');
+    if (hint) hint.textContent = touchStage.dataset.touchHint;
+  }
+}
+</script></body></html>

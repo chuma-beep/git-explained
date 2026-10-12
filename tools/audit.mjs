@@ -110,5 +110,44 @@ for (const figure of figures) {
   }
 }
 
+// The landing page is not a figure, so it is not in FIGURES and the motion and
+// line checks would fail it. It still needs watching: it is the first thing
+// anyone sees, and it carries a hero that moves.
+const LANDING = `(() => {
+  const trolley = document.querySelector("[data-hero-trolley]");
+  const before = trolley ? trolley.getAttribute("transform") : null;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const overflow = document.documentElement.scrollWidth > document.documentElement.clientWidth + 1;
+  const cards = document.querySelectorAll(".gs-card").length;
+  const hero = !!document.querySelector(".gs-hero svg");
+  return new Promise((done) => setTimeout(() => {
+    const after = trolley ? trolley.getAttribute("transform") : null;
+    done({ overflow, cards, hero, reduced, moved: before !== after });
+  }, 1700));
+})()`;
+
+if (!only.length && existsSync(join(ROOT, "index.html"))) {
+  const run = drive("index.html", [["wait", 1500], ["eval", LANDING]]);
+  const out = (run.stdout || "") + (run.stderr || "");
+  const state = /eval: (\{.*\})/.exec(out);
+  const exception = /exception:|console\.error/.test(out);
+  if (!state) {
+    console.log("FAIL index.html                 (the landing check did not return a result)");
+    console.log(out.trim().split("\n").slice(0, 12).map((l) => "     " + l).join("\n") || "     (empty)");
+    failed++;
+  } else {
+    const s = JSON.parse(state[1]);
+    const ok = !s.overflow && !exception && s.cards >= 8 && s.hero && (s.moved || s.reduced);
+    const parts = [
+      s.hero ? `hero, ${s.cards} cards` : "NO HERO",
+      s.overflow ? "OVERFLOWS" : "fits",
+      s.reduced ? "reduced motion (still)" : s.moved ? "hero moves" : "HERO STATIC",
+      exception ? "CONSOLE ERROR" : "console clean",
+    ];
+    console.log(`${ok ? "ok  " : "FAIL"} ${"index.html".padEnd(26)} ${parts.join(" · ")}`);
+    if (!ok) failed++;
+  }
+}
+
 console.log(failed ? `\n${failed} check(s) failed` : "\nall figures passed");
 process.exit(failed ? 1 : 0);

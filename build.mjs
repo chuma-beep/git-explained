@@ -575,6 +575,6 @@ const page = k.pageHtml({ title: "Git switchyard", theme, body, script: kitScrip
   .replace("</style>", NAV_CSS + "</style>");
 const name = theme === "light" ? "git-switchyard-light.html" : "git-switchyard.html";
 writeFileSync(join(HERE, name), page);
-// index.html is the light build, so the folder opens somewhere sensible by default
-if (theme === "light") writeFileSync(join(HERE, "index.html"), page);
+// index.html is the landing page now, built by build-home.mjs. Do not write it
+// here: tools/build-all.mjs runs this script last, so it would overwrite it.
 console.log("wrote", name);

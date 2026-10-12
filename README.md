@@ -18,13 +18,14 @@ draws isometric SVG from a single Node build script and no framework.
 
 ## The figures
 
-Open `index.html`, or any of the linked pages. Each is standalone and works
-from the filesystem — no server needed.
+Open [`index.html`](index.html) for the landing page, or go straight to any
+figure below. Each page is standalone and works from the filesystem — no
+server needed.
 
 | Page | Object | The idea |
 |---|---|---|
 | [`staging.html`](staging.html) | **Packing bench** — bench, tray, press | The three areas. You edit on the bench (working directory), `git add` moves a change to the tray (staging area), and `git commit` seals the tray into a crate on the rack. A change left on the bench is not in the commit, however often you save the file. |
-| [`index.html`](index.html) | **Switchyard** — a signal-box junction | Commits are wagons, branches are roads. `main` runs A‑B‑C‑F, `feat` leaves the line exactly where B stands and runs D‑E, and F is a merge commit with two parents. HEAD rides the rails. |
+| [`git-switchyard.html`](git-switchyard.html) | **Switchyard** — a signal-box junction | Commits are wagons, branches are roads. `main` runs A‑B‑C‑F, `feat` leaves the line exactly where B stands and runs D‑E, and F is a merge commit with two parents. HEAD rides the rails. |
 | [`clone.html`](clone.html) | **Mill that makes copies** | `git clone` copies the whole history, not just the files, and adds `origin` and `origin/main`. Two arms on a board show your branch and the server as you last saw it. |
 | [`remotes.html`](remotes.html) | **Goods yard with two bays** | A remote is not a cloud, it is another copy of your wagons. `push` lifts a wagon to the far bay, `fetch` downloads without merging, `pull` also puts it on your road. |
 | [`conflicts.html`](conflicts.html) | **Two roads into one berth** | A conflict is not a git fault. Two branches change the same line, so git has two answers for one place and stops. A lamp is red until a person edits the file; then it is green. |
@@ -44,10 +45,14 @@ not pull.
 
 ## Written explanation
 
-Each figure has a written counterpart in [`docs/`](docs/index.md), in
+Each figure has a written counterpart in [`docs/`](docs/index.html), in
 Simplified Technical English (ASD-STE100). STE keeps sentences short and uses
 one term for one thing, so the text is easy to translate and easy to read in a
 second language.
+
+The notes are markdown, and `build-docs.mjs` renders them to HTML so they read
+properly on the live site. The renderer covers the subset the notes use, so
+there is no markdown dependency.
 
 | Document | Figure |
 |---|---|
@@ -109,16 +114,22 @@ npm run watch     # rebuild on change, no server
 npm run vendor    # refresh vendor/ from an installed anatomy skill
 ```
 
-Each figure is one build script and writes a standalone HTML file:
+Each page is one build script and writes a standalone HTML file:
 
 | Script | Writes |
 |---|---|
-| `build.mjs` | `git-switchyard.html`, `index.html` |
+| `build-home.mjs` | `index.html` — the landing page |
+| `build.mjs` | `git-switchyard.html` |
+| `build-staging.mjs` | `staging.html` |
+| `build-clone.mjs` | `clone.html` |
 | `build-remotes.mjs` | `remotes.html` |
+| `build-conflicts.mjs` | `conflicts.html` |
 | `build-rebase.mjs` | `rebase.html` |
 | `build-pull-request.mjs` | `pull-request.html` |
+| `build-tags.mjs` | `tags.html` |
+| `build-docs.mjs` | `docs/*.html` — the notes, rendered from `docs/*.md` |
 
-`--light` produces the light build of each. `tools/build-all.mjs` finds the
+`--light` produces the light build of each figure. `tools/build-all.mjs` finds the
 build scripts, so a new figure needs no change to the scripts. `nav.mjs` holds
 the shared nav and theme switch, so a change there updates every page at once.
 

@@ -86,7 +86,7 @@ function newBed() {
   for (const off of [-3.4, 3.4])
     out.push(S(k.slabOf({ x: X0, y: NEW_Y + off, w: X1 - X0, d: 1.8, r: 0.8 }, NEW_Z + 2.3, 1.8, P, 2, 0.3), { tone: "hi" }));
   // cast label on the bed face
-  out.push(k.faceTextSvg(k.topMatrix([X0 + 6, NEW_Y + 9], 0.1, P, "x"), "new base", { size: 4.2, tone: "faint" }));
+  out.push(k.faceTextSvg(k.topMatrix([X1 - 22, NEW_Y + 9.5], 0.1, P, "x"), "new base", { size: 4.2, tone: "faint" }));
   return out.join("");
 }
 
@@ -96,7 +96,7 @@ function oldBed() {
   for (let x = X0; x <= X1; x += 17) out.push(S(k.slabOf({ x, y: OLD_Y - 6.5, w: 7, d: 13, r: 1 }, 0.7, 1.5, P, 2, 0.3), { tone: "mid" }));
   for (const off of [-3.4, 3.4])
     out.push(S(k.slabOf({ x: X0, y: OLD_Y + off, w: X1 - X0, d: 1.8, r: 0.8 }, 2.3, 1.8, P, 2, 0.3), { tone: "mid" }));
-  out.push(k.faceTextSvg(k.topMatrix([X0 + 6, OLD_Y + 9], 0.1, P, "x"), "old base", { size: 4.2, tone: "faint" }));
+  out.push(k.faceTextSvg(k.topMatrix([X1 - 22, OLD_Y + 9.5], 0.1, P, "x"), "old base", { size: 4.2, tone: "faint" }));
   return out.join("");
 }
 
@@ -157,6 +157,8 @@ function clutter() {
 
 function wagons() {
   const out = [];
+  // ghost footprints on the old bed, filled in only after a rebase
+  for (const id of BRANCH) out.push(`<g data-ghost="${id}" display="none"></g>`);
   for (const id of SHARED) out.push(wagon(id, "old", false));
   for (const id of SHARED) out.push(wagon(id, "new", false));
   for (const id of BRANCH) out.push(wagon(id, "old", false));
@@ -202,6 +204,7 @@ for (const id of SHARED.concat(BRANCH)) {
 
 // rebased: true once the branch wagons have been replayed onto the new bed
 let rebased = false, moving = null, t = 0, frame = 0, last = 0, visible = false, leverShown = "";
+const moved = new Set();
 const queue = [];
 
 function paint() {
@@ -212,24 +215,44 @@ function paint() {
   }
   for (const id of BRANCH) {
     if (id === moving) {
+      // in flight: it has left the old bed but has not settled on the new one
       wagonEls[id].old.root.setAttribute("display", "none");
       wagonEls[id].new.root.setAttribute("display", "inline");
       wagonEls[id].new.label.textContent = NEW_IDS[id];
       wagonEls[id].new.body.setAttribute("data-lit", "");
       wagonEls[id].new.label.setAttribute("data-tone", "hi");
+      setGhost(id, false);
       continue;
     }
-    if (rebased) {
+    if (moved.has(id)) {
+      // done: it now lives on the new bed, and a ghost marks where it was
       wagonEls[id].old.root.setAttribute("display", "none");
       wagonEls[id].new.root.setAttribute("display", "inline");
       wagonEls[id].new.label.textContent = NEW_IDS[id];
       wagonEls[id].new.label.setAttribute("data-tone", "lo");
       wagonEls[id].new.body.removeAttribute("data-lit");
+      setGhost(id, true);
     } else {
       wagonEls[id].old.root.setAttribute("display", "inline");
       wagonEls[id].new.root.setAttribute("display", "none");
+      setGhost(id, false);
     }
   }
+}
+
+// After the move, a dashed footprint stays on the old bed showing where that
+// wagon used to sit -- the visual "it was here, now it lives over there".
+function setGhost(id, on) {
+  const g = svg.querySelector('[data-ghost="' + id + '"]');
+  if (!g) return;
+  if (on && !g.childElementCount) {
+    const x = POS[id], y = OLD_Y;
+    g.innerHTML = [
+      lineSvg(planOutline(insetPlan({ x: x - 9, y: y - 5, w: 18, d: 10, r: 1.5 }, 1.8), 0.2, P, 3), { tone: "faint", dashed: true }),
+      dotsSvg([iso([x - 9, y - 5, 0.2], P), iso([x + 9, y + 5, 0.2], P)], { size: 0.4, tone: "faint" }),
+    ].join("");
+  }
+  g.setAttribute("display", on ? "inline" : "none");
 }
 
 function trolleySvg() {
@@ -296,7 +319,7 @@ function tick(now) {
     hookG.innerHTML = ropeSvg(NEW_Z * (1 - up) + NEW_Z * down);
     if (t >= 1) {
       el.removeAttribute("transform");
-      const done = moving;
+      moved.add(moving);
       moving = BRANCH[BRANCH.indexOf(moving) + 1] || null;
       if (!moving) rebased = true;
       t = 0;

@@ -26,7 +26,8 @@ if (!SKILL) {
 let building = false;
 let queued = false;
 
-const FIGURES = ["build.mjs", "build-remotes.mjs", "build-rebase.mjs", "build-pull-request.mjs"];
+import { buildScripts } from "./tools/build-all.mjs";
+const FIGURES = buildScripts();
 
 function run(script, args) {
   return new Promise((done) => {

@@ -4,6 +4,8 @@ Four interactive figures that explain git by building it as a real object.
 Every commit is a wagon, every branch is a road, and the concepts are the
 mechanism of a rail yard rather than boxes-and-arrows.
 
+**Open them here: <https://chuma-beep.github.io/git-explained/>**
+
 Built with the [anatomy](https://github.com/wheresryan22/anatomy) skill, which
 draws isometric SVG from a single Node build script and no framework.
 
@@ -63,9 +65,11 @@ remembers your choice across all four pages.
 ## Building
 
 ```sh
-npm run build     # all four figures, both themes
+npm run build     # every figure, both themes
+npm test          # build, then check the figures and the docs
 npm run dev       # rebuild on change, served by vite with live reload
 npm run watch     # rebuild on change, no server
+npm run vendor    # refresh vendor/ from an installed anatomy skill
 ```
 
 Each figure is one build script and writes a standalone HTML file:
@@ -77,16 +81,26 @@ Each figure is one build script and writes a standalone HTML file:
 | `build-rebase.mjs` | `rebase.html` |
 | `build-pull-request.mjs` | `pull-request.html` |
 
-`--light` produces the light build of each. `figure-kit.mjs` locates the
-anatomy skill and `nav.mjs` holds the shared nav and theme switch, so a change
-to those updates every page at once.
+`--light` produces the light build of each. `tools/build-all.mjs` finds the
+build scripts, so a new figure needs no change to the scripts. `nav.mjs` holds
+the shared nav and theme switch, so a change there updates every page at once.
 
-If the skill is not found, set `ANATOMY_SKILL` to the folder holding its
-`SKILL.md`:
+The kit is copied into `vendor/`, so **a clone builds with nothing else
+installed**. `figure-kit.mjs` falls back to an installed anatomy skill if
+`vendor/` is absent. See [`vendor/README.md`](vendor/README.md).
 
-```sh
-ANATOMY_SKILL=~/.config/opencode/skills/anatomy npm run build
-```
+## Testing
+
+`npm test` builds every figure, then:
+
+- **motion** — opens each page in a real browser and makes sure the figure
+  changes on its own. A throw inside `requestAnimationFrame` freezes a figure
+  with no error anywhere, so this is the check that catches it.
+- **line ends** — every texture line must end on a stroke, a dot or an outline.
+- **docs** — every document must pass the Simplified Technical English checker.
+
+The browser is Chromium, or any Chrome on `$CHROME_PATH`. The check tools are
+in `tools/`; `tools/README.md` gives their origin.
 
 ## Truth
 

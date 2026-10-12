@@ -1,8 +1,15 @@
-# Git, explained as a working machine
+<h1 align="center">Git, explained as a working machine</h1>
 
-Eight interactive figures that explain git and GitHub by building them as real objects.
-Every commit is a wagon, every branch is a road, and the concepts are the
-mechanism of a rail yard rather than boxes-and-arrows.
+<p align="center">
+  <b>Eight interactive figures that explain git and GitHub by building them as real objects.</b><br>
+  Every commit is a wagon, every branch is a road, and the concepts are the mechanism of a rail yard rather than boxes-and-arrows.
+</p>
+
+<p align="center">
+  <a href="https://chuma-beep.github.io/git-explained/"><img src="https://img.shields.io/badge/open_the_figures-live-1b1b19?style=flat-square" alt="Open the figures"></a>
+  <a href="https://github.com/chuma-beep/git-explained/actions/workflows/ci.yml"><img src="https://github.com/chuma-beep/git-explained/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-1b1b19?style=flat-square" alt="MIT licence"></a>
+</p>
 
 **Open them here: <https://chuma-beep.github.io/git-explained/>**
 

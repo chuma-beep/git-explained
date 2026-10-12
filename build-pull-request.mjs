@@ -327,7 +327,7 @@ if (readout.textContent !== describe()) readout.textContent = describe();
 `;
 
 const body = navHtml("pr", "Git pull request", "the review gate") + k.plateHtml({
-  fig: "Fig 4",
+  fig: "Fig 5",
   title: "Pull request — the gate",
   hint: "Click approve or press space to clear review",
   readout: "pull request open",

@@ -554,7 +554,7 @@ draw();
 `;
 
 const body = navHtml("switchyard", "Git switchyard", "commits as wagons") + k.plateHtml({
-  fig: "Fig 1", title: "Branch & merge",
+  fig: "Fig 2", title: "Branch & merge",
   hint: "Hover to move HEAD · arrows step commits",
   readout: "HEAD→F · main",
   keys: [

@@ -41,15 +41,28 @@ const MOTION = `(()=>{
   });
 })()`;
 
-const actions = [
+// The figures tour on their own, so the two checks need different moments.
+// The line check must run while the figure is at rest, before the tour's first
+// step: a line that is correctly rooted can still float mid-stroke. The motion
+// check then samples for a few seconds and counts distinct states.
+const LINES_ACTIONS = [
+  ["wait", 900],
+  ["lines", null, ".iso-plate", { tolerance: 1.2 }],
+];
+const MOTION_ACTIONS = [
   ["wait", 1400],
   ["eval", MOTION],
-  ["lines", null, ".iso-plate", { tolerance: 1.2 }],
 ];
 
 const only = process.argv.slice(2).filter((a) => !a.startsWith("-"));
 const figures = only.length ? only : FIGURES;
 const themes = ["", "-light"];
+
+const drive = (page, actions) =>
+  spawnSync(process.execPath, [join(HERE, "drive.mjs"), join(ROOT, page), JSON.stringify(actions)], {
+    encoding: "utf8",
+    timeout: 120000,
+  });
 
 let failed = 0;
 for (const figure of figures) {
@@ -60,21 +73,20 @@ for (const figure of figures) {
       failed++;
       continue;
     }
-    const run = spawnSync(process.execPath, [join(HERE, "drive.mjs"), join(ROOT, page), JSON.stringify(actions)], {
-      encoding: "utf8",
-      timeout: 120000,
-    });
-    const out = (run.stdout || "") + (run.stderr || "");
 
-    const motion = /"distinct":(\d+)/.exec(out);
-    const distinct = motion ? Number(motion[1]) : 0;
-    const moved = distinct > 1;
-
-    const lineMatch = /line ends: (\d+) of \d+ ends/.exec(out);
+    const lineRun = drive(page, LINES_ACTIONS);
+    const lineOut = (lineRun.stdout || "") + (lineRun.stderr || "");
+    const lineMatch = /line ends: (\d+) of \d+ ends/.exec(lineOut);
     const floating = lineMatch ? Number(lineMatch[1]) : null;
     const clean = floating === 0;
 
-    const exception = /exception:|console\.error/.test(out);
+    const motionRun = drive(page, MOTION_ACTIONS);
+    const motionOut = (motionRun.stdout || "") + (motionRun.stderr || "");
+    const motion = /"distinct":(\d+)/.exec(motionOut);
+    const distinct = motion ? Number(motion[1]) : 0;
+    const moved = distinct > 1;
+
+    const exception = /exception:|console\.error/.test(lineOut + motionOut);
 
     const ok = moved && clean && !exception;
     const parts = [
@@ -85,8 +97,8 @@ for (const figure of figures) {
     console.log(`${ok ? "ok  " : "FAIL"} ${page.padEnd(26)} ${parts.join(" · ")}`);
     if (!ok) {
       failed++;
-      if (!moved) console.log("     the figure did not change in 3.6 s with no input");
-      if (floating) console.log("     run the lines action by hand and read the report");
+      if (!moved) console.log("     the figure did not change in ~3.6 s with no input");
+      if (floating) console.log("     " + lineOut.split("\n").find((l) => /px from/.test(l))?.trim());
       if (exception) console.log("     a console error or exception stopped the page");
     }
   }

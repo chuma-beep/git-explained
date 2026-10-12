@@ -44,6 +44,7 @@ export const NAV_CSS = `
 // `current` is the key of the figure this page is; the theme switch follows the
 // reader's saved preference so every page opens in the theme they last chose.
 export const FIGURES = [
+  { key: "staging", label: "Staging", href: "staging-light.html", alt: "staging.html" },
   { key: "switchyard", label: "Branch & merge", href: "index.html", alt: "git-switchyard-light.html" },
   { key: "remotes", label: "Remotes", href: "remotes-light.html", alt: "remotes.html" },
   { key: "rebase", label: "Rebase", href: "rebase-light.html", alt: "rebase.html" },

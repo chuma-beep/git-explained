@@ -109,7 +109,15 @@ async function main() {
     process.exit(1);
   }
   const profile = mkdtempSync(join(tmpdir(), "iso-drive-"));
-  const chrome = spawn(binary, ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "--no-first-run", "--no-default-browser-check", "--hide-scrollbars", "--allow-file-access-from-files", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "about:blank"]);
+  // CI containers need --no-sandbox, and runners have a small /dev/shm that
+  // makes Chrome stall on render without --disable-dev-shm-usage.
+  const args = ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${profile}`,
+    "--no-first-run", "--no-default-browser-check", "--hide-scrollbars",
+    "--allow-file-access-from-files", "--enable-unsafe-swiftshader",
+    "--ignore-gpu-blocklist", "--disable-dev-shm-usage"];
+  if (process.env.CI || process.env.CHROME_NO_SANDBOX) args.push("--no-sandbox");
+  args.push("about:blank");
+  const chrome = spawn(binary, args);
   const port = await new Promise((done, fail) => {
     let text = "";
     const timer = setTimeout(() => fail(new Error("Chrome did not start")), 20000);

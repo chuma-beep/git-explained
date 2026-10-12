@@ -100,6 +100,12 @@ for (const figure of figures) {
       if (!moved) console.log("     the figure did not change in ~3.6 s with no input");
       if (floating) console.log("     " + lineOut.split("\n").find((l) => /px from/.test(l))?.trim());
       if (exception) console.log("     a console error or exception stopped the page");
+      // Show what the driver actually said, so a failure on another machine is
+      // readable without guessing.
+      console.log("----- lines pass output -----");
+      console.log(lineOut.trim().split("\n").slice(0, 12).map((l) => "     " + l).join("\n") || "     (empty)");
+      console.log("----- motion pass output -----");
+      console.log(motionOut.trim().split("\n").slice(0, 12).map((l) => "     " + l).join("\n") || "     (empty)");
     }
   }
 }

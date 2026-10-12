@@ -81,7 +81,7 @@ function trestle() {
 // The raised bed: a trestle of legs holding a higher rail.
 function newBed() {
   const out = [];
-  out.push(S(k.slabOf({ x: X0 - 10, y: NEW_Y - 9, w: X1 - X0 + 20, d: 15, r: 3 }, NEW_Z - 0.7, 0.7, P, 3), { tone: "lo", crease: "none" }));
+  out.push(S(k.slabOf({ x: X0 - 10, y: NEW_Y - 9, w: X1 - X0 + 20, d: 15, r: 3 }, NEW_Z - 0.7, 0.7, P, 3), { tone: "lo", crease: "none", className: "tint-green" }));
   for (let x = X0; x <= X1; x += 17) out.push(S(k.slabOf({ x, y: NEW_Y - 6.5, w: 7, d: 13, r: 1 }, 0.7, 1.5, P, 2, 0.3), { tone: "mid" }));
   for (const off of [-3.4, 3.4])
     out.push(S(k.slabOf({ x: X0, y: NEW_Y + off, w: X1 - X0, d: 1.8, r: 0.8 }, NEW_Z + 2.3, 1.8, P, 2, 0.3), { tone: "hi" }));
@@ -270,7 +270,7 @@ function trolleySvg() {
 }
 function ropeSvg(len) {
   if (len < 0.5) return "";
-  return lineSvg(rise([GANTRY_X, 0], GANTRY_H + 8, GANTRY_H + 8 - len, P), { tone: "lo" });
+  return lineSvg(rise([GANTRY_X, 0], GANTRY_H + 8, GANTRY_H + 8 - len, P), { tone: "green", flow: true });
 }
 function leverSvg(throwT) {
   const out = [];
@@ -374,7 +374,8 @@ new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; i
 
 svg.querySelector("[data-lever]").style.cursor = "pointer";
 svg.querySelector("[data-lever]").addEventListener("click", () => poke());
-stage.addEventListener("keydown", (e) => { if (e.key === "r" || e.key === "R") poke(); });
+const typing = (e) => { const t = e.target; return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable); };
+document.addEventListener("keydown", (e) => { if (typing(e)) return; if (e.key === "r" || e.key === "R") poke(); });
 // one action, so anywhere on the figure is a valid target on a touch screen
 stage.addEventListener("click", () => poke());
 paint();

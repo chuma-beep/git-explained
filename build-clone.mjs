@@ -63,9 +63,9 @@ function plate() {
 }
 
 // A rail bed, used for both the server row and your bench.
-function bed(y, z, label) {
+function bed(y, z, label, tint) {
   const out = [];
-  out.push(S(k.slabOf({ x: X0 - 22, y: y - 13, w: GAP * 2 + 44, d: 26, r: 3 }, z, 2.4, P, 3, 0.4), { tone: "mid" }));
+  out.push(S(k.slabOf({ x: X0 - 22, y: y - 13, w: GAP * 2 + 44, d: 26, r: 3 }, z, 2.4, P, 3, 0.4), { tone: "mid", className: "tint-" + tint }));
   out.push(L(k.planOutline(k.insetPlan({ x: X0 - 22, y: y - 13, w: GAP * 2 + 44, d: 26, r: 3 }, 2), z + 2.4, P, 3), { tone: "faint" }));
   for (let i = 0; i < 3; i++) {
     const x = SLOT(i);
@@ -147,7 +147,7 @@ function pointers() {
 const svg = k.figureSvg({
   width: WIDTH, height: HEIGHT,
   label: "A duplicating mill. The server's row of commits stands high on a plinth. The mill stamps an identical row onto the low bench, and a pointer board then carries two arms: main for your branch and origin/main for where the server was.",
-  body: [plate(), plinth(), bed(SERVER_Y, SERVER_Z, "server row"), bed(BENCH_Y, 0, "your row"),
+  body: [plate(), plinth(), bed(SERVER_Y, SERVER_Z, "server row", "blue"), bed(BENCH_Y, 0, "your row", "amber"),
     `<g data-server></g>`, `<g data-local></g>`, mill(), pointers()],
 });
 
@@ -197,7 +197,7 @@ const localSvg = (upto) => COMMITS.map((id, i) => (i < upto ? wagon(id, SLOT(i),
 
 function headSvg(x, z) {
   const out = [];
-  out.push(lineSvg(rise([x, BENCH_Y], MILL_H + 4, z, P), { tone: "faint" }));
+  out.push(lineSvg(rise([x, BENCH_Y], MILL_H + 4, z, P), { tone: "blue", flow: true }));
   // both ends of the cable need something to land on: the beam above, the
   // head below
   out.push(dotsSvg([iso([x, BENCH_Y, MILL_H + 4], P), iso([x, BENCH_Y, z], P)], { size: 0.5, tone: "faint" }));
@@ -297,7 +297,8 @@ const run = () => { if (!frame && visible) { last = 0; frame = requestAnimationF
 new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; if (visible) run(); }, { rootMargin: "120px 0px" }).observe(stage);
 
 stage.addEventListener("click", () => poke());
-stage.addEventListener("keydown", (e) => { if (e.key === "c" || e.key === "C" || e.key === " ") { e.preventDefault(); poke(); } });
+const typing = (e) => { const t = e.target; return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable); };
+document.addEventListener("keydown", (e) => { if (typing(e)) return; if (e.key === "c" || e.key === "C" || e.key === " ") { e.preventDefault(); poke(); } });
 paint();
 setText(describe());
 `;

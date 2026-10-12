@@ -63,9 +63,9 @@ function plate() {
   return out.join("");
 }
 
-function track(y, x0, x1) {
+function track(y, x0, x1, tint) {
   const out = [];
-  out.push(S(k.slabOf({ x: x0 - 8, y: y - 11, w: x1 - x0 + 16, d: 18, r: 3 }, 0, 0.7, P, 3), { tone: "lo", crease: "none" }));
+  out.push(S(k.slabOf({ x: x0 - 8, y: y - 11, w: x1 - x0 + 16, d: 18, r: 3 }, 0, 0.7, P, 3), { tone: "lo", crease: "none", className: "tint-" + tint }));
   for (let x = x0; x <= x1; x += 16) out.push(S(k.slabOf({ x, y: y - 7, w: 7, d: 14, r: 1 }, 0.7, 1.6, P, 2, 0.3), { tone: "mid" }));
   for (const off of [-3.4, 3.4])
     out.push(S(k.slabOf({ x: x0, y: y + off, w: x1 - x0, d: 1.8, r: 0.8 }, 2.3, 1.8, P, 2, 0.3), { tone: "mid" }));
@@ -176,7 +176,7 @@ function clutter() {
 const svg = k.figureSvg({
   width: WIDTH, height: HEIGHT,
   label: "A goods yard with two loading bays. Your wagons sit on the near rail, the remote's identical wagons on the far rail. A gantry trolley lifts a wagon across when you push, and lowers one back when you pull.",
-  body: [plate(), track(LOCAL_Y, -120, 46), track(REMOTE_Y, -120, 46), wagons(), gantry(), clutter()],
+  body: [plate(), track(LOCAL_Y, -120, 46, "amber"), track(REMOTE_Y, -120, 46, "blue"), wagons(), gantry(), clutter()],
 });
 
 function wagons() {
@@ -263,7 +263,7 @@ function trolleySvg() {
 function ropeSvg(len) {
   if (len < 0.5) return "";
   const top = GANTRY_H + 8;
-  return lineSvg(rise([GANTRY_X, 0], top, top - len, P), { tone: "lo" });
+  return lineSvg(rise([GANTRY_X, 0], top, top - len, P), { tone: "amber", flow: true });
 }
 
 function setText(text) {
@@ -385,8 +385,8 @@ for (const name of ["push", "pull"]) {
   el.addEventListener("click", (e) => { e.stopPropagation(); poke(name); });
   el.style.cursor = "pointer";
 }
-stage.addEventListener("keydown", (e) => {
-  if (e.key === "p" || e.key === "P") poke("push");
+const typing = (e) => { const t = e.target; return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable); };
+document.addEventListener("keydown", (e) => { if (typing(e)) return; if (e.key === "p" || e.key === "P") poke("push");
   if (e.key === "l" || e.key === "L") poke("pull");
   if (e.key === "f" || e.key === "F") poke("fetch");
 });

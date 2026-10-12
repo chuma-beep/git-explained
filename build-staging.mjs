@@ -80,7 +80,7 @@ function plate() {
 
 function bench() {
   const out = [];
-  out.push(S(k.slabOf(BENCH, BENCH_TOP, 5, P, 4, 0.6), { tone: "mid" }));
+  out.push(S(k.slabOf(BENCH, BENCH_TOP, 5, P, 4, 0.6), { tone: "mid", className: "tint-amber" }));
   out.push(L(k.planOutline(k.insetPlan(BENCH, 2.4), BENCH_TOP + 5, P, 3), { tone: "faint" }));
   for (const [x, y] of k.corners(BENCH, 9)) {
     out.push(S(k.cylinder(x, y, 1.8, 0, BENCH_TOP, P, 14), { tone: "mid" }));
@@ -104,7 +104,7 @@ function tray() {
   for (const [w, d, ox, oy] of [
     [TRAY.w, wall, 0, 0], [TRAY.w, wall, 0, TRAY.d - wall],
     [wall, TRAY.d - wall * 2, 0, wall], [wall, TRAY.d - wall * 2, TRAY.w - wall, wall],
-  ]) out.push(S(k.slabOf({ x: TRAY.x + ox, y: TRAY.y + oy, w, d, r: 0.8 }, 1.4, 4, P, 3, 0.3), { tone: "mid" }));
+  ]) out.push(S(k.slabOf({ x: TRAY.x + ox, y: TRAY.y + oy, w, d, r: 0.8 }, 1.4, 4, P, 3, 0.3), { tone: "mid", className: "tint-blue" }));
   for (let i = 1; i < SLOTS; i++) {
     const x = TRAY.x + 13 + i * 16 - 5;
     out.push(L(k.lineOnTop([x, TRAY.y + 6], [x, TRAY.y + TRAY.d - 6], 1.6, P), { tone: "faint" }));
@@ -136,8 +136,8 @@ function rack() {
   }
   // an open stacking frame: a base board, a back wall and two posts, so the
   // crates stay in view as the stack grows
-  out.push(S(k.slabOf({ x: RACK.x, y: RACK.y, w: RACK.w, d: RACK.d, r: 1 }, 3, 2.4, P, 3, 0.3), { tone: "mid" }));
-  out.push(S(k.slabOf({ x: RACK.x + RACK.w - 6, y: RACK.y, w: 6, d: RACK.d, r: 1 }, 5.4, 52, P, 3, 0.3), { tone: "mid" }));
+  out.push(S(k.slabOf({ x: RACK.x, y: RACK.y, w: RACK.w, d: RACK.d, r: 1 }, 3, 2.4, P, 3, 0.3), { tone: "mid", className: "tint-green" }));
+  out.push(S(k.slabOf({ x: RACK.x + RACK.w - 6, y: RACK.y, w: 6, d: RACK.d, r: 1 }, 5.4, 52, P, 3, 0.3), { tone: "mid", className: "tint-green" }));
   for (const y of [RACK.y + 3, RACK.y + RACK.d - 6]) {
     out.push(S(k.cylinder(RACK.x + 3, y + 1.5, 1.6, 5.4, 52, P, 12), { tone: "mid", crease: "none" }));
     out.push(D([at([RACK.x + 3, y + 1.5, 5.4])], { size: 0.4 }));
@@ -199,12 +199,12 @@ const committed = [];
 let mode = "idle", t = 0, carry = -1, frame = 0, last = 0, visible = false;
 let touring = !still.matches, dwell = 1.5, ramZ = 0;
 
-const LIT = { tone: "hi", lit: true, crease: "none" };
-const PLAIN = { tone: "hi", crease: "lo" };
+const LIT = (tint) => ({ tone: "hi", lit: true, crease: "none", className: "tint-" + tint });
+const PLAIN = (tint) => ({ tone: "hi", crease: "lo", className: "tint-" + tint });
 
-function changeSvg(kind, x, y, z, lit) {
+function changeSvg(kind, x, y, z, tint, lit) {
   const out = [];
-  const body = lit ? LIT : PLAIN;
+  const body = lit ? LIT(tint) : PLAIN(tint);
   if (kind === "plate") {
     const box = { x: x - 5.5, y: y - 4, w: 11, d: 8, r: 1 };
     out.push(solidSvg(slabOf(box, z, 3.4, P, 3, 0.3), body));
@@ -223,7 +223,7 @@ function changeSvg(kind, x, y, z, lit) {
 function crateSvg(x, y, z, id) {
   const out = [];
   const box = { x: x - 11, y: y - 8, w: 22, d: 16, r: 1.5 };
-  out.push(solidSvg(slabOf(box, z, 13, P, 4, 0.4), { tone: "mid" }));
+  out.push(solidSvg(slabOf(box, z, 13, P, 4, 0.4), { tone: "mid", className: "tint-green" }));
   out.push(lineSvg(planOutline(insetPlan(box, 1.8), z + 13, P, 3), { tone: "faint" }));
   for (const dy of [-4.4, 3.6]) out.push(lineSvg(lineOnTop([x - 11, y + dy], [x + 11, y + dy], z + 13.1, P), { tone: "mid" }));
   out.push(solidSvg(slabOf({ x: x - 3, y: y - 8, w: 6, d: 16, r: 0.8 }, z + 13, 1.2, P, 3, 0.2), { tone: "hi" }));
@@ -239,8 +239,8 @@ function onBench() { return spot.filter((s) => s === "bench").length; }
 function paint() {
   const bits = [];
   for (let j = 0; j < PARTS.length; j++) {
-    if (spot[j] === "bench") { const b = benchSpot(j); bits.push(changeSvg(PARTS[j].kind, b[0], b[1], b[2], false)); }
-    else if (spot[j] === "tray") { const s = traySpot(traySlotOf(j)); bits.push(changeSvg(PARTS[j].kind, s[0], s[1], s[2], true)); }
+    if (spot[j] === "bench") { const b = benchSpot(j); bits.push(changeSvg(PARTS[j].kind, b[0], b[1], b[2], "amber", false)); }
+    else if (spot[j] === "tray") { const s = traySpot(traySlotOf(j)); bits.push(changeSvg(PARTS[j].kind, s[0], s[1], s[2], "blue", true)); }
   }
   partsG.innerHTML = bits.join("");
   cratesG.innerHTML = committed.map((id, i) => { const r = rackSpot(i); return crateSvg(r[0], r[1], r[2], id); }).join("");
@@ -306,17 +306,17 @@ function tick(now) {
     const bits = [];
     for (let j = 0; j < PARTS.length; j++) {
       if (j === i) continue;
-      if (spot[j] === "bench") { const b = benchSpot(j); bits.push(changeSvg(PARTS[j].kind, b[0], b[1], b[2], false)); }
-      else if (spot[j] === "tray") { const s = traySpot(traySlotOf(j)); bits.push(changeSvg(PARTS[j].kind, s[0], s[1], s[2], true)); }
+      if (spot[j] === "bench") { const b = benchSpot(j); bits.push(changeSvg(PARTS[j].kind, b[0], b[1], b[2], "amber", false)); }
+      else if (spot[j] === "tray") { const s = traySpot(traySlotOf(j)); bits.push(changeSvg(PARTS[j].kind, s[0], s[1], s[2], "blue", true)); }
     }
-    bits.push(changeSvg(PARTS[i].kind, x, y, z, true));
+    bits.push(changeSvg(PARTS[i].kind, x, y, z, "blue", true));
     partsG.innerHTML = bits.join("");
     armG.innerHTML = armAt(x, y, z);
     if (t >= 1) { spot[i] = "tray"; carry = -1; mode = "idle"; t = 0; armG.innerHTML = ""; paint(); }
   } else if (mode === "commit") {
     t = Math.min(1, t + dt / MOVE);
     ramZ = t < 0.5 ? (t / 0.5) * 30 : (1 - (t - 0.5) / 0.5) * 30;
-    ramG.innerHTML = solidSvg(cylinder(PRESS_X, TRAY_Y + 9, 3.8, PH + 11 - ramZ, 6, P, 18), { tone: "hi" });
+    ramG.innerHTML = solidSvg(cylinder(PRESS_X, TRAY_Y + 9, 3.8, PH + 11 - ramZ, 6, P, 18), { tone: "hi", className: "tint-green", lit: true });
     if (t >= 1) {
       committed.push(COMMITS[committed.length % COMMITS.length]);
       for (let i = 0; i < spot.length; i++) if (spot[i] === "tray") spot[i] = "committed";
@@ -340,8 +340,8 @@ const run = () => { if (!frame && visible) { last = 0; frame = requestAnimationF
 new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; if (visible) run(); }, { rootMargin: "120px 0px" }).observe(stage);
 
 stage.addEventListener("click", () => poke("add"));
-stage.addEventListener("keydown", (e) => {
-  if (e.key === "a" || e.key === "A") { e.preventDefault(); poke("add"); }
+const typing = (e) => { const t = e.target; return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable); };
+document.addEventListener("keydown", (e) => { if (typing(e)) return; if (e.key === "a" || e.key === "A") { e.preventDefault(); poke("add"); }
   if (e.key === "c" || e.key === "C") { e.preventDefault(); poke("commit"); }
 });
 paint();

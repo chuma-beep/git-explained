@@ -72,7 +72,7 @@ function plate() {
 function track() {
   const out = [];
   out.push(S(k.slabOf({ x: RAIL_X0 - 8, y: MAIN_Y - 12, w: RAIL_X1 - RAIL_X0 + 16, d: 18, r: 3 }, 0, 0.7, P, 3), { tone: "lo", crease: "none" }));
-  out.push(S(k.slabOf({ x: SIDE_X0 - 8, y: SIDE_Y - 11, w: SIDE_X1 - SIDE_X0 + 16, d: 18, r: 3 }, 0, 0.7, P, 3), { tone: "lo", crease: "none" }));
+  out.push(S(k.slabOf({ x: SIDE_X0 - 8, y: SIDE_Y - 11, w: SIDE_X1 - SIDE_X0 + 16, d: 18, r: 3 }, 0, 0.7, P, 3), { tone: "lo", crease: "none", className: "tint-blue" }));
   for (let x = RAIL_X0; x <= RAIL_X1; x += 16) out.push(S(k.slabOf({ x, y: MAIN_Y - 7, w: 7, d: 14, r: 1 }, 0.7, 1.6, P, 2, 0.3), { tone: "mid" }));
   for (let x = SIDE_X0; x <= SIDE_X1; x += 15) out.push(S(k.slabOf({ x, y: SIDE_Y - 6.5, w: 7, d: 13, r: 1 }, 0.7, 1.6, P, 2, 0.3), { tone: "mid" }));
   for (const off of [-3.4, 3.4]) out.push(S(k.slabOf({ x: RAIL_X0, y: MAIN_Y + off, w: RAIL_X1 - RAIL_X0, d: 1.8, r: 0.8 }, 2.3, 1.8, P, 2, 0.3), { tone: "mid" }));
@@ -96,7 +96,7 @@ function wagon(c, lit) {
   const g = [];
   g.push(S(k.slabOf({ x: c.x - 11, y: c.y - 6, w: 22, d: 12, r: 2 }, 4.1, 2.2, P, 3, 0.4), { tone: "mid" }));
   const box = { x: c.x - 9, y: c.y - 5, w: 18, d: 10, r: 1.5 };
-  g.push(S(k.slabOf(box, 6.3, 8, P, 3, 0.5), { tone: "hi", className: "wg-body", lit, crease: lit ? "none" : "lo" }));
+  g.push(S(k.slabOf(box, 6.3, 8, P, 3, 0.5), { tone: "hi", className: "wg-body" + (c.merge ? " tint-green" : ""), lit, crease: lit ? "none" : "lo" }));
   g.push(L(k.planOutline(k.insetPlan(box, 1.8), 14.3, P, 3), { tone: "faint" }));
   g.push(L(k.planOutline(k.insetPlan(box, 3.4), 14.4, P, 3), { tone: "lo" }));
   for (const dx of [-4.4, 0, 4.4]) {
@@ -318,7 +318,8 @@ new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; i
 const btn = svg.querySelector("[data-btn]");
 btn.style.cursor = "pointer";
 btn.addEventListener("click", () => poke());
-stage.addEventListener("keydown", (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); poke(); } });
+const typing = (e) => { const t = e.target; return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable); };
+document.addEventListener("keydown", (e) => { if (typing(e)) return; if (e.key === " " || e.key === "Enter") { e.preventDefault(); poke(); } });
 stage.addEventListener("click", () => poke());
 paint();
 armG.innerHTML = armSvg(-1.45);

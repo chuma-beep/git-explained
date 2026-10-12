@@ -71,7 +71,7 @@ function track() {
   const out = [];
   // ballast inlay
   out.push(S(k.slabOf({ x: RAIL_X0 - 8, y: -22, w: RAIL_X1 - RAIL_X0 + 16, d: 18, r: 3 }, 0, 0.7, P, 3), { tone: "lo", crease: "none" }));
-  out.push(S(k.slabOf({ x: SIDE_X0 - 8, y: SIDE_Y - 10, w: SIDE_X1 - SIDE_X0 + 16, d: 18, r: 3 }, 0, 0.7, P, 3), { tone: "lo", crease: "none" }));
+  out.push(S(k.slabOf({ x: SIDE_X0 - 8, y: SIDE_Y - 10, w: SIDE_X1 - SIDE_X0 + 16, d: 18, r: 3 }, 0, 0.7, P, 3), { tone: "lo", crease: "none", className: "tint-blue" }));
   // sleepers
   for (let x = -116; x <= 88; x += 16) {
     out.push(S(k.slabOf({ x, y: -20, w: 7, d: 14, r: 1 }, 0.7, 1.6, P, 2, 0.3), { tone: "mid" }));
@@ -83,7 +83,7 @@ function track() {
   for (const y of [MAIN_Y - 3.4, MAIN_Y + 3.4])
     out.push(S(k.slabOf({ x: RAIL_X0, y, w: RAIL_X1 - RAIL_X0, d: 1.8, r: 0.8 }, 2.3, 1.8, P, 2, 0.3), { tone: "mid" }));
   for (const y of [SIDE_Y - 3.4, SIDE_Y + 3.4])
-    out.push(S(k.slabOf({ x: SIDE_X0, y, w: SIDE_X1 - SIDE_X0, d: 1.8, r: 0.8 }, 2.3, 1.8, P, 2, 0.3), { tone: "mid" }));
+    out.push(S(k.slabOf({ x: SIDE_X0, y, w: SIDE_X1 - SIDE_X0, d: 1.8, r: 0.8 }, 2.3, 1.8, P, 2, 0.3), { tone: "mid", className: "tint-blue" }));
   // turnout blades at west junction — the pair slides sideways to set the route
   out.push(`<g data-blade>${S(k.slabOf({ x: SIDE_X0 - 2, y: -6, w: 14, d: 2.2, r: 1 }, 2.3, 1.4, P, 2), { tone: "hi" })}</g>`);
   // merge lead: two rails joining siding to main (E -> F)
@@ -114,7 +114,7 @@ function wagon(c, lit) {
   // solebar under the frame, so the wagon has a visible edge all the way round
   g.push(L(k.planOutline(k.insetPlan(frame, 1.2), 6.3, P, 3), { tone: "faint" }));
   const box = { x: c.x - 9, y: c.y - 5, w: 18, d: 10, r: 1.5 };
-  g.push(S(k.slabOf(box, 6.3, 8, P, 3, 0.5), { tone: "hi", className: "wg-body", lit, crease: lit ? "none" : "lo" }));
+  g.push(S(k.slabOf(box, 6.3, 8, P, 3, 0.5), { tone: "hi", className: "wg-body" + (c.merge ? " tint-green" : ""), lit, crease: lit ? "none" : "lo" }));
   // ribs down the box sides, and a cant rail along the top edge
   for (const dx of [-4.6, 0, 4.6]) {
     g.push(L(k.lineOnTop([c.x + dx, c.y - 5], [c.x + dx, c.y - 5], 6.6, P), { tone: "faint" }));
@@ -473,9 +473,9 @@ function draw() {
   const lampKey = [branch, running ? 1 : 0].join("/");
   if (lampShown !== lampKey) {
     lampShown = lampKey;
-    lampEls.main.innerHTML = dotsSvg([iso(LAMPS.main, P)], { size: branch === "main" ? 1.2 : 0.8, tone: branch === "main" ? "hi" : "faint" });
-    lampEls.feat.innerHTML = dotsSvg([iso(LAMPS.feat, P)], { size: branch === "feat" ? 1.2 : 0.8, tone: branch === "feat" ? "hi" : "faint" });
-    lampEls.head.innerHTML = dotsSvg([iso(LAMPS.head, P)], { size: running ? 1.25 : 0.95, tone: running ? "hi" : "mid", pulse: running });
+    lampEls.main.innerHTML = dotsSvg([iso(LAMPS.main, P)], { size: branch === "main" ? 1.3 : 0.8, tone: branch === "main" ? "amber" : "faint" });
+    lampEls.feat.innerHTML = dotsSvg([iso(LAMPS.feat, P)], { size: branch === "feat" ? 1.3 : 0.8, tone: branch === "feat" ? "blue" : "faint" });
+    lampEls.head.innerHTML = dotsSvg([iso(LAMPS.head, P)], { size: running ? 1.3 : 0.95, tone: running ? "green" : "faint", pulse: running });
   }
 
   for (const c of COMMITS) {
@@ -534,7 +534,11 @@ function aimAt(e) {
 }
 stage.addEventListener("pointermove", aimAt);
 stage.addEventListener("pointerdown", aimAt);
-stage.addEventListener("keydown", (e) => {
+const typing = (e) => { const t = e.target; return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable); };
+document.addEventListener("keydown", (e) => { if (typing(e)) return;
+  // Arrow keys also scroll the page, so only take them while the figure is
+  // on screen. Past it, the arrows scroll as usual.
+  if (!visible) return;
   const i = ORDER.indexOf(head); let to = null;
   if (e.key === "ArrowRight" || e.key === "ArrowUp") to = Math.min(ORDER.length - 1, i + 1);
   if (e.key === "ArrowLeft" || e.key === "ArrowDown") to = Math.max(0, i - 1);

@@ -91,7 +91,7 @@ function wagon(id, x, lit, tagged) {
 function tagSvg(x, y, z) {
   const g = [];
   const plateBox = { x: x - 8, y: y - 4, w: 16, d: 8, r: 1 };
-  g.push(S(k.slabOf(plateBox, z, 1.8, P, 3, 0.3), { tone: "hi", lit: true }));
+  g.push(S(k.slabOf(plateBox, z, 1.8, P, 3, 0.3), { tone: "hi", lit: true, className: "tint-amber" }));
   g.push(k.faceTextSvg(k.topMatrix([x, y + 1.4], z + 1.9, P, "x"), TAG_NAME, { size: 3.6, tone: "lo", anchor: "middle" }));
   for (const dx of [-6, 6]) {
     g.push(S(k.cylinder(x + dx, y, 0.7, z + 1.8, 0.9, P, 10), { tone: "mid" }));
@@ -174,7 +174,7 @@ const PLAIN = { tone: "hi", crease: "lo" };
 function tagSvg(x, y, z) {
   const g = [];
   const plateBox = { x: x - 8, y: y - 4, w: 16, d: 8, r: 1 };
-  g.push(solidSvg(slabOf(plateBox, z, 1.8, P, 3, 0.3), LIT));
+  g.push(solidSvg(slabOf(plateBox, z, 1.8, P, 3, 0.3), { ...LIT, className: "tint-amber" }));
   g.push(faceTextSvg(topMatrix([x, y + 1.4], z + 1.9, P, "x"), TAG_NAME, { size: 3.6, tone: "lo", anchor: "middle" }));
   for (const dx of [-6, 6]) {
     g.push(solidSvg(cylinder(x + dx, y, 0.7, z + 1.8, 0.9, P, 10), { tone: "mid" }));
@@ -300,7 +300,8 @@ const run = () => { if (!frame && visible) { last = 0; frame = requestAnimationF
 new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; if (visible) run(); }, { rootMargin: "120px 0px" }).observe(stage);
 
 stage.addEventListener("click", () => poke());
-stage.addEventListener("keydown", (e) => { if (e.key === "t" || e.key === "T" || e.key === " ") { e.preventDefault(); poke(); } });
+const typing = (e) => { const t = e.target; return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable); };
+document.addEventListener("keydown", (e) => { if (typing(e)) return; if (e.key === "t" || e.key === "T" || e.key === " ") { e.preventDefault(); poke(); } });
 paint();
 setText(describe());
 `;

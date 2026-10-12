@@ -59,6 +59,26 @@ Check the documents with the STE tool:
 python3 ~/.claude/skills/simplified-technical-english/scripts/ste_check.py --mode mixed docs/*.md
 ```
 
+## Colour
+
+The figures share one small colour language, so the same thing is the same
+colour on every page:
+
+| Colour | Meaning |
+|---|---|
+| **Blue** | The other branch, the remote, `origin` |
+| **Amber** | Yours: your branch, your bay, `HEAD`, a tag |
+| **Green** | Committed, merged, resolved, clear to go |
+| **Red** | Stopped: a conflict, a failed check |
+
+So in the switchyard the `feat` siding is blue and the merge commit is green;
+in remotes your bay is amber and `origin` is blue; in conflicts the two
+approaches are amber and blue and the berth turns green when the clash clears.
+
+Only the top face of a solid is tinted, so the kit's four-tone shading still
+reads underneath. Cables animate while they work, using the kit's own flow
+lines.
+
 ## Interaction
 
 Every figure responds to the pointer and the keyboard, settles when you leave

@@ -3,6 +3,36 @@
 export const NAV_CSS = `
 .gs-nav{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:16px;flex-wrap:wrap;width:min(680px,100% - 32px);margin:0 auto;padding:14px 0 12px;background:linear-gradient(var(--anatomy-page) 72%,transparent);backdrop-filter:blur(6px)}
 .iso-hit{fill:transparent;stroke:none}
+
+/* A small colour language, the same in every figure:
+     blue  the other branch, the remote, origin
+     amber yours, HEAD, attention
+     green committed, resolved, clear to go
+     red   stopped, in conflict
+   Only the top face is tinted, so the four-tone shading still reads. */
+.iso{--gs-amber:#f0a24a;--gs-blue-top:#20344a;--gs-amber-top:#3b2f19;--gs-green-top:#1b3226;--gs-red-top:#3a2024}
+.iso[data-theme="light"]{--gs-amber:#b8691a;--gs-blue-top:#cfe0f5;--gs-amber-top:#f4e2bd;--gs-green-top:#cfe9da;--gs-red-top:#f5d7da}
+.tint-blue>.iso-top{fill:var(--gs-blue-top)}
+.tint-amber>.iso-top{fill:var(--gs-amber-top)}
+.tint-green>.iso-top{fill:var(--gs-green-top)}
+.tint-red>.iso-top{fill:var(--gs-red-top)}
+.tint-blue>.iso-edge{stroke:var(--anatomy-blue)}
+.tint-amber>.iso-edge{stroke:var(--gs-amber)}
+.tint-green>.iso-edge{stroke:var(--anatomy-green)}
+.tint-red>.iso-edge{stroke:var(--anatomy-red)}
+/* lamps: a filled, coloured dot instead of the default grey one */
+.iso-dots[data-tone="red"] circle{fill:var(--anatomy-red);opacity:1}
+.iso-dots[data-tone="green"] circle{fill:var(--anatomy-green);opacity:1}
+.iso-dots[data-tone="blue"] circle{fill:var(--anatomy-blue);opacity:1}
+.iso-dots[data-tone="amber"] circle{fill:var(--gs-amber);opacity:1}
+.iso-dots[data-tone="red"] circle{filter:drop-shadow(0 0 4px var(--anatomy-red))}
+.iso-dots[data-tone="green"] circle{filter:drop-shadow(0 0 4px var(--anatomy-green))}
+.iso-dots[data-tone="blue"] circle{filter:drop-shadow(0 0 4px var(--anatomy-blue))}
+.iso-dots[data-tone="amber"] circle{filter:drop-shadow(0 0 4px var(--gs-amber))}
+.iso-dots[data-glow] circle{filter:drop-shadow(0 0 5px currentColor)}
+/* a lit solid can carry a colour edge without losing its shading */
+.iso-solid[data-lit].tint-amber>.iso-edge{stroke:var(--gs-amber)}
+.iso-solid[data-lit].tint-blue>.iso-edge{stroke:var(--anatomy-blue)}
 .gs-nav-title{font:600 13px/1 var(--anatomy-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--anatomy-strong);margin:0}
 .gs-nav-sub{font:12px/1 var(--anatomy-mono);color:var(--anatomy-muted);letter-spacing:.04em}
 .gs-nav-spacer{flex:1}

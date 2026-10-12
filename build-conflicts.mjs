@@ -64,9 +64,9 @@ function plate() {
 }
 
 // A road: ballast, sleepers along its length, and a pair of rails.
-function road(x0, y, x1) {
+function road(x0, y, x1, tint) {
   const out = [];
-  out.push(S(k.slabOf({ x: x0, y: y - 11, w: x1 - x0, d: 22, r: 3 }, 0, 2, P, 3, 0.4), { tone: "mid" }));
+  out.push(S(k.slabOf({ x: x0, y: y - 11, w: x1 - x0, d: 22, r: 3 }, 0, 2, P, 3, 0.4), { tone: "mid", className: "tint-" + tint }));
   for (let x = x0 + 4; x < x1 - 4; x += 16) out.push(S(k.slabOf({ x, y: y - 8, w: 6, d: 16, r: 1 }, 2, 1.4, P, 2, 0.3), { tone: "lo" }));
   for (const off of [-3.4, 3.4]) out.push(S(k.slabOf({ x: x0, y: y + off, w: x1 - x0, d: 1.6, r: 0.7 }, 3.4, 1.6, P, 2, 0.3), { tone: "mid" }));
   return out.join("");
@@ -125,7 +125,7 @@ function crane() {
 const svg = k.figureSvg({
   width: WIDTH, height: HEIGHT,
   label: "Two roads run into one berth. A wagon from main and a wagon from feat both change the same line, so both claim the berth. A red lamp marks the clash until a tool rewrites one wagon and both fit.",
-  body: [plate(), road(APPROACH_X, MAIN_Y, MERGE_X + 4), road(APPROACH_X, FEAT_Y, MERGE_X + 4), road(MERGE_X - 4, THROAT_Y, BERTH_X + 26),
+  body: [plate(), road(APPROACH_X, MAIN_Y, MERGE_X + 4, "amber"), road(APPROACH_X, FEAT_Y, MERGE_X + 4, "blue"), road(MERGE_X - 4, THROAT_Y, BERTH_X + 26, "green"),
     junction(), crane(), lamp(), `<g data-wagons></g>`],
 });
 
@@ -191,10 +191,10 @@ function setText(text) {
   stage.setAttribute("aria-valuetext", text);
 }
 function describe() {
-  if (phase === "merge") return "both roads run into the berth · watch for the clash";
-  if (phase === "clash") return "CONFLICT · both changed line 42 · git stops and waits";
-  if (phase === "resolve") return "you edit the file by hand · the tool rewrites one wagon";
-  return "resolved · both changes kept · commit the result";
+  if (phase === "merge") return "both roads into one berth";
+  if (phase === "clash") return "CONFLICT · both changed line 42";
+  if (phase === "resolve") return "you edit the file by hand";
+  return "resolved · both changes kept";
 }
 
 function startMerge() {
@@ -234,7 +234,7 @@ function tick(now) {
     t = Math.min(1, t + dt / MOVE);
     const e = t * t * (3 - 2 * t);
     const toolZ = CRANE_H - 4 - e * (CRANE_H - 30);
-    toolG.innerHTML = lineSvg(rise([CRANE_X, THROAT_Y], CRANE_H + 5, toolZ, P), { tone: "faint" })
+    toolG.innerHTML = lineSvg(rise([CRANE_X, THROAT_Y], CRANE_H + 5, toolZ, P), { tone: "green", flow: true })
       + dotsSvg([iso([CRANE_X, THROAT_Y, CRANE_H + 5], P), iso([CRANE_X, THROAT_Y, toolZ], P)], { size: 0.45, tone: "faint" })
       + solidSvg(cylinder(CRANE_X, THROAT_Y, 2.6, toolZ - 6, 6, P, 16), { tone: "hi" })
       + solidSvg(slabOf({ x: CRANE_X - 8, y: THROAT_Y - 4, w: 16, d: 8, r: 1 }, toolZ - 10, 4, P, 3, 0.3), { tone: "mid" });
@@ -262,7 +262,8 @@ const run = () => { if (!frame && visible) { last = 0; frame = requestAnimationF
 new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; if (visible) run(); }, { rootMargin: "120px 0px" }).observe(stage);
 
 stage.addEventListener("click", () => poke());
-stage.addEventListener("keydown", (e) => { if (e.key === " " || e.key === "m" || e.key === "M") { e.preventDefault(); poke(); } });
+const typing = (e) => { const t = e.target; return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable); };
+document.addEventListener("keydown", (e) => { if (typing(e)) return; if (e.key === " " || e.key === "m" || e.key === "M") { e.preventDefault(); poke(); } });
 paint(0);
 setText(describe());
 `;

@@ -20,14 +20,13 @@ const FOOT_H = 5;
 const LOCAL_Y = -6;
 const REMOTE_Y = 46;
 
-// Commits as wagons. Both bays hold the same ids; a wagon exists in a bay only
-// once it has been transferred there, which is exactly what push/pull mean.
+// Commits as wagons. The two bays have diverged from B: you have C, the remote
+// has D (someone else pushed it). That divergence is what makes both push and
+// pull meaningful, so the tour can show one of each.
 const COMMITS = ["A", "B", "C", "D"];
 const POS = { A: -108, B: -64, C: -20, D: 24 };
 const LOCAL_HAS = ["A", "B", "C"];
-const REMOTE_HAS = ["A", "B"];
-// The one commit that exists locally and nowhere else: the candidate for push.
-const UNPUSHED = "C";
+const REMOTE_HAS = ["A", "B", "D"];
 
 const GANTRY_X = 4;
 const GANTRY_H = 62;
@@ -191,7 +190,6 @@ const POS = ${JSON.stringify(POS)};
 const COMMITS = ${JSON.stringify(COMMITS)};
 const LOCAL_HAS = ${JSON.stringify(LOCAL_HAS)};
 const REMOTE_HAS = ${JSON.stringify(REMOTE_HAS)};
-const UNPUSHED = ${JSON.stringify(UNPUSHED)};
 const GANTRY_X = ${GANTRY_X};
 const GANTRY_H = ${GANTRY_H};
 const LOCAL_Y = ${LOCAL_Y};
@@ -220,6 +218,9 @@ for (const id of COMMITS) {
 let local = new Set(LOCAL_HAS);
 let remote = new Set(REMOTE_HAS);
 let mode = "idle", carrying = null, t = 0, frame = 0, last = 0, visible = false;
+// The tour pushes, then pulls, then rewinds, so both verbs are shown without a
+// click. Held still under reduced motion.
+let touring = !still.matches, dwell = 1.3, carryFrac = 0;
 
 // Each bay shows only the commits it actually holds; a wagon mid-transfer is
 // shown riding the gantry between the two.
@@ -267,12 +268,13 @@ function setText(text) {
   stage.setAttribute("aria-valuetext", text);
 }
 function describe() {
-  if (mode === "push") return "push: lifting " + carrying + " to origin";
-  if (mode === "fetch") return "fetch: downloading " + carrying + ", not merging yet";
-  if (mode === "pull") return "pull: " + carrying + " down onto local";
+  if (mode === "push") return "push · lifting " + carrying + " to origin";
+  if (mode === "fetch") return "fetch · downloading " + carrying + ", not merging";
+  if (mode === "pull") return "pull · " + carrying + " down onto local";
   const ahead = [...local].filter((c) => !remote.has(c));
-  if (ahead.length) return "local ahead by " + ahead.join(",") + " · push sends them";
   const behind = [...remote].filter((c) => !local.has(c));
+  if (ahead.length && behind.length) return "diverged · origin lacks " + ahead.join(",") + ", you lack " + behind.join(",");
+  if (ahead.length) return "local ahead by " + ahead.join(",") + " · push sends them";
   if (behind.length) return "origin ahead by " + behind.join(",") + " · pull brings them";
   return "in sync · local = origin";
 }
@@ -288,9 +290,30 @@ function start(which) {
     if (!next) { flash("nothing to pull — you have everything"); return; }
     carrying = next; mode = which === "pull" ? "pull" : "fetch";
   }
+  if (still.matches) {
+    // no motion: land the result at once
+    if (mode === "push") remote.add(carrying); else local.add(carrying);
+    carrying = null; mode = "idle"; t = 0; carryFrac = 0; paint(); return;
+  }
   t = 0;
   paint();
   run();
+}
+// Wind back to the diverged state so the tour can run both verbs again.
+function reset() {
+  local = new Set(LOCAL_HAS);
+  remote = new Set(REMOTE_HAS);
+  mode = "idle"; carrying = null; t = 0; carryFrac = 0;
+  for (const id of COMMITS) wagonEls[id].local.root.removeAttribute("transform");
+  hookG.innerHTML = "";
+  paint();
+}
+// A reader's own action takes over; the tour resumes a few seconds later.
+function poke(which) {
+  touring = false;
+  clearTimeout(poke.t);
+  if (mode === "idle") start(which);
+  poke.t = setTimeout(() => { touring = !still.matches; dwell = 1.8; run(); }, 4200);
 }
 function flash(msg) {
   setText(msg);
@@ -311,25 +334,44 @@ function tick(now) {
       const down = clamp01((e - 0.7) / 0.3);
       const dz = 30 * up - 30 * down;
       wagonEls[carrying].local.root.setAttribute("transform", carryTransform(dz, CARRIED_Y * across));
+      carryFrac = across;
       hookG.innerHTML = ropeSvg(GANTRY_H - 30 * up + 30 * down);
-      if (t >= 1) { remote.add(carrying); carrying = null; mode = "idle"; t = 0; hookG.innerHTML = ""; }
+      if (t >= 1) { remote.add(carrying); carrying = null; mode = "idle"; t = 0; carryFrac = 0; hookG.innerHTML = ""; }
     } else {
       const across = clamp01(e / 0.42);
       const down = clamp01((e - 0.42) / 0.32);
       const settle = clamp01((e - 0.76) / 0.24);
       const dz = -30 * across + 30 * down - 30 * settle;
       wagonEls[carrying].local.root.setAttribute("transform", carryTransform(dz, CARRIED_Y * (1 - across)));
+      carryFrac = 1 - across;
       hookG.innerHTML = ropeSvg(GANTRY_H - 30 * (1 - across) + 30 * down - 30 * settle);
-      if (t >= 1) { remote.delete(carrying); local.add(carrying); carrying = null; mode = "idle"; t = 0; hookG.innerHTML = ""; }
+      if (t >= 1) { local.add(carrying); carrying = null; mode = "idle"; t = 0; carryFrac = 0; hookG.innerHTML = ""; }
     }
-    // during pull the commit is also in the remote bay until the merge lands
+    // pull copies too: the remote keeps its wagon, you gain one
     paint();
+  } else if (touring) {
+    dwell -= dt;
+    if (dwell <= 0) {
+      const ahead = [...local].some((c) => !remote.has(c));
+      const behind = [...remote].some((c) => !local.has(c));
+      if (ahead) start("push");
+      else if (behind) start("pull");
+      else reset();
+      dwell = 2.0;
+    }
   }
   const busy = mode !== "idle";
   trolley.innerHTML = trolleySvg();
-  trolley.setAttribute("transform", translateAlong(P, [0, busy ? CARRIED_Y * 0.5 : 0, 0]));
+  // the trolley rides the beam above the wagon it is carrying
+  trolley.setAttribute("transform", translateAlong(P, [0, CARRIED_Y * carryFrac, 0]));
+  // the desk buttons press themselves while their action runs
+  for (const name of ["push", "pull"]) {
+    const el = svg.querySelector('[data-btn="' + name + '"]');
+    const active = (name === "push" && mode === "push") || (name === "pull" && (mode === "pull" || mode === "fetch"));
+    el.setAttribute("transform", translateAlong(P, [0, 0, active ? -0.8 : 0]));
+  }
   setText(describe());
-  frame = visible && busy ? requestAnimationFrame(tick) : 0;
+  frame = visible && (busy || touring) ? requestAnimationFrame(tick) : 0;
 }
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
 const run = () => { if (!frame && visible) { last = 0; frame = requestAnimationFrame(tick); } };
@@ -337,13 +379,13 @@ new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; i
 
 for (const name of ["push", "pull"]) {
   const el = svg.querySelector('[data-btn="' + name + '"]');
-  el.addEventListener("click", (e) => { e.stopPropagation(); start(name); });
+  el.addEventListener("click", (e) => { e.stopPropagation(); poke(name); });
   el.style.cursor = "pointer";
 }
 stage.addEventListener("keydown", (e) => {
-  if (e.key === "p" || e.key === "P") start("push");
-  if (e.key === "l" || e.key === "L") start("pull");
-  if (e.key === "f" || e.key === "F") start("fetch");
+  if (e.key === "p" || e.key === "P") poke("push");
+  if (e.key === "l" || e.key === "L") poke("pull");
+  if (e.key === "f" || e.key === "F") poke("fetch");
 });
 paint();
 setText(describe());
@@ -356,7 +398,9 @@ const body = navHtml("remotes", "Git remotes", "push &amp; pull") + k.plateHtml(
   readout: "in sync",
   keys: [
     { mark: "lit", label: "Wagon present in that bay" },
-    { mark: "raised", label: "Gantry trolley lifts a wagon between bays" },
+    { mark: "raised", label: "Gantry trolley carries a wagon between the bays" },
+    { mark: "line", label: "Near bay: your copy · far bay: origin's copy" },
+    { mark: "line", label: "Desk: push and pull buttons (keys p and l)" },
   ],
   caption: "A remote (origin) is just another copy of your wagons. push sends the ones it does not have; fetch downloads without merging; pull is fetch plus putting them on your road. Press p to push the commit origin is missing, or l to pull one back.",
   body: '<div class="iso-stage" tabindex="0" role="group" aria-label="Git remotes: push and pull between local and origin">' + svg + "</div>",

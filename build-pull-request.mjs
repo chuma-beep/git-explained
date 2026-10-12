@@ -206,6 +206,9 @@ const SLOT = { D: -30, E: 6 };
 
 // phase: "queued" -> "running" -> "merged"
 let phase = "queued", t = 0, frame = 0, last = 0, visible = false, armShown = "", lampShown = "";
+// The tour opens the gate, then closes it again, so the figure explains
+// itself without a click. Held still under reduced motion.
+let touring = !still.matches, dwell = 1.5;
 let open = 0;
 
 function armSvg(angle) {
@@ -239,10 +242,28 @@ return "merged · M has two parents: C and E";
 
 function approve() {
   if (phase !== "queued") return;
+  if (still.matches) { phase = "merged"; paint(); return; }
   phase = "running";
   t = 0;
   paint();
   run();
+}
+
+// Put the wagons back on the branch road and drop the barrier again.
+function reset() {
+  phase = "queued";
+  t = 0;
+  open = 0;
+  for (const id of GATE) wagonEls[id].root.removeAttribute("transform");
+  paint();
+}
+
+// A reader's own action takes over; the tour resumes shortly after.
+function poke() {
+  touring = false;
+  clearTimeout(poke.t);
+  approve();
+  poke.t = setTimeout(() => { touring = !still.matches; dwell = 1.7; run(); }, 4200);
 }
 
 const MOVE = 2.4;
@@ -266,6 +287,12 @@ function tick(now) {
       w.root.setAttribute("transform", translateAlong(P, [x - c.x, y - c.y, 0]));
     }
     if (t >= 1) { phase = "merged"; open = 0; paint(); }
+  } else if (touring) {
+    dwell -= dt;
+    if (dwell <= 0) {
+      if (phase === "queued") approve(); else reset();
+      dwell = 1.8;
+    }
   }
   // the barrier arm swings up as the gate opens
   const angle = -1.45 + open * 1.35;
@@ -277,18 +304,20 @@ function tick(now) {
     lampG.innerHTML = dotsSvg([iso([GATE_X + 4, MAIN_Y, 42.9], P)], { size: lit ? 1.25 : 0.95, tone: lit ? "hi" : "faint" });
   }
   blade.setAttribute("transform", translateAlong(P, [0, phase === "queued" ? -1.2 : 2.4, 0]));
+  // the approve button holds itself down once review is cleared
+  btn.setAttribute("transform", translateAlong(P, [0, 0, phase === "queued" ? 0 : -0.8]));
   const text = describe();
   if (readout.textContent !== text) readout.textContent = text;
   stage.setAttribute("aria-valuetext", text);
-  frame = visible && phase === "running" ? requestAnimationFrame(tick) : 0;
+  frame = visible && (phase === "running" || touring) ? requestAnimationFrame(tick) : 0;
 }
 const run = () => { if (!frame && visible) { last = 0; frame = requestAnimationFrame(tick); } };
 new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; if (visible) run(); }, { rootMargin: "120px 0px" }).observe(stage);
 
 const btn = svg.querySelector("[data-btn]");
 btn.style.cursor = "pointer";
-btn.addEventListener("click", () => approve());
-stage.addEventListener("keydown", (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); approve(); } });
+btn.addEventListener("click", () => poke());
+stage.addEventListener("keydown", (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); poke(); } });
 paint();
 armG.innerHTML = armSvg(-1.45);
 lampG.innerHTML = dotsSvg([iso([GATE_X + 4, MAIN_Y, 42.9], P)], { size: 0.95, tone: "faint" });
@@ -303,6 +332,8 @@ const body = navHtml("pr", "Git pull request", "the review gate") + k.plateHtml(
   keys: [
     { mark: "lit", label: "Review cleared: the gate can open" },
     { mark: "raised", label: "Wagons waiting on the branch road" },
+    { mark: "line", label: "Barrier arm: down while review is pending" },
+    { mark: "line", label: "Desk: approve the review (click or space)" },
   ],
   caption: "A pull request is a gate, not a move. D and E sit on the branch road and cannot reach main on their own: the barrier is down and the lamp is dark. Once a reviewer clears it, the barrier lifts, the wagons run onto main, and M appears with two parents, C and E.",
   body: '<div class="iso-stage" tabindex="0" role="group" aria-label="Pull request: a branch merging into main through a review gate">' + svg + "</div>",

@@ -205,6 +205,9 @@ for (const id of SHARED.concat(BRANCH)) {
 // rebased: true once the branch wagons have been replayed onto the new bed
 let rebased = false, moving = null, t = 0, frame = 0, last = 0, visible = false, leverShown = "";
 const moved = new Set();
+// The idle tour rebases on its own, then winds back, so the figure explains
+// itself without anyone touching it. Paused under reduced motion.
+let touring = !still.matches, dwell = 1.2, rewinding = false;
 const queue = [];
 
 function paint() {
@@ -288,16 +291,41 @@ function setText(text) {
 }
 function describe() {
   if (moving) return "moving " + moving + " onto the new base as " + NEW_IDS[moving];
-if (rebased) return "rebased · D' and E' on B · no merge commit";
-return "before · D and E sit on A";
+  if (rebased) return "rebased · D' and E' on B · no merge commit";
+  if (rewinding) return "winding back · D and E sit on A again";
+  return "before · D and E sit on A";
 }
 
 function start() {
   if (rebased || moving) return;
+  if (still.matches) { for (const id of BRANCH) moved.add(id); rebased = true; paint(); return; }
   moving = BRANCH[0];
   t = 0;
   paint();
   run();
+}
+
+// Wind the figure back to before the rebase so the tour can replay it.
+function reset() {
+  moved.clear();
+  rebased = false;
+  moving = null;
+  t = 0;
+  rewinding = true;
+  hookG.innerHTML = "";
+  for (const id of BRANCH) {
+    wagonEls[id].new.root.removeAttribute("transform");
+    wagonEls[id].new.label.textContent = id;
+  }
+  paint();
+}
+
+// A reader's own action takes over; the tour resumes a few seconds later.
+function poke() {
+  touring = false;
+  clearTimeout(poke.t);
+  start();
+  poke.t = setTimeout(() => { touring = !still.matches; dwell = 1.6; run(); }, 4200);
 }
 
 const MOVE = 1.8;
@@ -326,18 +354,24 @@ function tick(now) {
       hookG.innerHTML = "";
     }
     paint();
+  } else if (touring) {
+    dwell -= dt;
+    if (dwell <= 0) {
+      if (!rebased) { rewinding = false; start(); } else if (!rewinding) { reset(); }
+      dwell = 1.7;
+    }
   }
   trolley.innerHTML = trolleySvg();
   trolley.setAttribute("transform", translateAlong(P, [0, moving ? (NEW_Y - OLD_Y) * 0.5 : 0, 0]));
   setText(describe());
-  frame = visible && (moving || !rebased) ? requestAnimationFrame(tick) : 0;
+  frame = visible && (moving || touring) ? requestAnimationFrame(tick) : 0;
 }
 const run = () => { if (!frame && visible) { last = 0; frame = requestAnimationFrame(tick); } };
 new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; if (visible) run(); }, { rootMargin: "120px 0px" }).observe(stage);
 
 svg.querySelector("[data-lever]").style.cursor = "pointer";
-svg.querySelector("[data-lever]").addEventListener("click", () => start());
-stage.addEventListener("keydown", (e) => { if (e.key === "r" || e.key === "R") start(); });
+svg.querySelector("[data-lever]").addEventListener("click", () => poke());
+stage.addEventListener("keydown", (e) => { if (e.key === "r" || e.key === "R") poke(); });
 paint();
 setText(describe());
 `;
@@ -349,7 +383,9 @@ const body = navHtml("rebase", "Git rebase", "replay on a new base") + k.plateHt
   readout: "before",
   keys: [
     { mark: "lit", label: "The wagon being replayed right now" },
-    { mark: "raised", label: "Raised bed: the new base commit" },
+    { mark: "raised", label: "Raised bed: the new base commit B" },
+    { mark: "line", label: "Dashed outline: where that wagon used to sit" },
+    { mark: "line", label: "Desk lever throws the rebase (key r)" },
   ],
   caption: "Rebase does not merge. It lifts D and E off the old base and replays them on top of B, so they come back with new ids, D' and E'. Your branch is now a straight line and no merge commit is created. The same changes, new commit ids.",
   body: '<div class="iso-stage" tabindex="0" role="group" aria-label="Rebase: replay branch commits onto a new base">' + svg + "</div>",

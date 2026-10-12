@@ -554,8 +554,10 @@ const body = navHtml("switchyard", "Git switchyard", "commits as wagons") + k.pl
   hint: "Hover to move HEAD · arrows step commits",
   readout: "HEAD→F · main",
   keys: [
-    { mark: "lit", label: "HEAD wagon: where you are" },
-    { mark: "raised", label: "Wagons A–F: commits; F has two parents" },
+    { mark: "lit", label: "HEAD wagon: where you are (the trolley rides to it)" },
+    { mark: "raised", label: "Wagons A–F: commits; F is a merge of C and E" },
+    { mark: "line", label: "Pointer board: main sits at F, feat sits at E" },
+    { mark: "line", label: "Bench: sleepers, ballast bin and oil for the yard" },
   ],
   caption: "Commits are wagons, branches are roads. main runs A-B-C-F; feat leaves the line at the west points, exactly where B stands, and runs D-E. F is a merge: it has two parents, C and E. The pointer board on the right holds main at F and feat at E.",
   body: '<div class="iso-stage" tabindex="0" role="slider" aria-label="Git switchyard: arrow keys move HEAD" aria-valuemin="0" aria-valuemax="5" aria-valuenow="2">' + svg + "</div>",

@@ -1,0 +1,18 @@
+{
+  "name": "git-switchyard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build:switchyard && npm run build:others",
+    "build:switchyard": "node build.mjs && node build.mjs --light",
+    "build:others": "node build-remotes.mjs && node build-remotes.mjs --light && node build-rebase.mjs && node build-rebase.mjs --light && node build-pull-request.mjs && node build-pull-request.mjs --light",
+    "watch": "node watch.mjs",
+    "dev": "node watch.mjs & vite",
+    "dev:serve": "vite",
+    "serve": "python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}

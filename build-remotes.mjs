@@ -143,7 +143,10 @@ function clutter() {
   out.push(S(k.slabOf(desk, 0, 3, P, 4, 0.5), { tone: "mid" }));
   out.push(L(k.planOutline(k.insetPlan(desk, 1.6), 3, P), { tone: "lo" }));
   for (const [name, dx] of [["push", 18], ["pull", 44]]) {
-    out.push(`<g data-btn="${name}">${S(k.cylinder(desk.x + dx, desk.y + 11, 5.4, 3, 2.6, P, 24), { tone: "hi", lit: true, className: "btn" })}</g>`);
+    const [hx, hy] = at([desk.x + dx, desk.y + 11, 3]);
+    // the visible button is small at phone scale, so a wide invisible disc
+    // takes the tap. The two discs touch but do not overlap.
+    out.push(`<g data-btn="${name}">${S(k.cylinder(desk.x + dx, desk.y + 11, 5.4, 3, 2.6, P, 24), { tone: "hi", lit: true, className: "btn" })}<circle class="iso-hit" cx="${hx}" cy="${hy}" r="13" pointer-events="all"/></g>`);
     out.push(k.faceTextSvg(k.topMatrix([desk.x + dx, desk.y + 3], 3.2, P, "x"), name, { size: 3.2, tone: "faint", anchor: "middle" }));
   }
   // oil can and a crate for texture
@@ -403,7 +406,7 @@ const body = navHtml("remotes", "Git remotes", "push &amp; pull") + k.plateHtml(
     { mark: "line", label: "Desk: push and pull buttons (keys p and l)" },
   ],
   caption: "A remote (origin) is just another copy of your wagons. push sends the ones it does not have; fetch downloads without merging; pull is fetch plus putting them on your road. Press p to push the commit origin is missing, or l to pull one back.",
-  body: '<div class="iso-stage" tabindex="0" role="group" aria-label="Git remotes: push and pull between local and origin">' + svg + "</div>",
+  body: '<div class="iso-stage" tabindex="0" data-touch-hint="Tap the desk buttons to push and pull" role="group" aria-label="Git remotes: push and pull between local and origin">' + svg + "</div>",
 });
 
 const page = k.pageHtml({ title: "Git remotes", theme, body, script: kitScript() + live + THEME_JS })

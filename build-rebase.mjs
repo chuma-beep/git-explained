@@ -146,6 +146,9 @@ function clutter() {
   out.push(S(k.slabOf(desk, 0, 3.4, P, 4, 0.5), { tone: "mid" }));
   out.push(L(k.planOutline(k.insetPlan(desk, 1.6), 3.4, P), { tone: "lo" }));
   out.push(k.faceTextSvg(k.topMatrix([desk.x + desk.w / 2, desk.y + 5], 3.5, P, "x"), "rebase", { size: 3.4, tone: "faint", anchor: "middle" }));
+  // a wide invisible disc around the lever, so a thumb can find it on a phone
+  const [lhx, lhy] = at([113, -68, 3.4]);
+  out.push(`<circle class="iso-hit" cx="${lhx}" cy="${lhy}" r="15" pointer-events="all"/>`);
   out.push(`<g data-lever></g>`);
   // ballast bins and a spare sleeper stack
   out.push(S(k.slabOf({ x: -142, y: -74, w: 40, d: 16, r: 2 }, 0, 9, P, 4, 0.4), { tone: "mid" }));
@@ -372,6 +375,8 @@ new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; i
 svg.querySelector("[data-lever]").style.cursor = "pointer";
 svg.querySelector("[data-lever]").addEventListener("click", () => poke());
 stage.addEventListener("keydown", (e) => { if (e.key === "r" || e.key === "R") poke(); });
+// one action, so anywhere on the figure is a valid target on a touch screen
+stage.addEventListener("click", () => poke());
 paint();
 setText(describe());
 `;
@@ -388,7 +393,7 @@ const body = navHtml("rebase", "Git rebase", "replay on a new base") + k.plateHt
     { mark: "line", label: "Desk lever throws the rebase (key r)" },
   ],
   caption: "Rebase does not merge. It lifts D and E off the old base and replays them on top of B, so they come back with new ids, D' and E'. Your branch is now a straight line and no merge commit is created. The same changes, new commit ids.",
-  body: '<div class="iso-stage" tabindex="0" role="group" aria-label="Rebase: replay branch commits onto a new base">' + svg + "</div>",
+  body: '<div class="iso-stage" tabindex="0" data-touch-hint="Tap the lever to rebase" role="group" aria-label="Rebase: replay branch commits onto a new base">' + svg + "</div>",
 });
 
 const page = k.pageHtml({ title: "Git rebase", theme, body, script: kitScript() + live + THEME_JS })

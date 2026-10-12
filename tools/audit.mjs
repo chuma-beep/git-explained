@@ -17,11 +17,14 @@ import { fileURLToPath } from "node:url";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..");
 
-// Every built page except index.html, which is a copy of one of them.
-const FIGURES = readdirSync(ROOT)
-  .filter((name) => name.endsWith(".html") && name !== "index.html")
-  .map((name) => name.replace(/\.html$/, ""))
-  .sort();
+// Base figure names. Read the built pages, drop index.html (a copy of one of
+// them), and fold the -light pages back onto their base name so each figure is
+// audited once per theme.
+const FIGURES = [...new Set(
+  readdirSync(ROOT)
+    .filter((name) => name.endsWith(".html") && name !== "index.html")
+    .map((name) => name.replace(/\.html$/, "").replace(/-light$/, "")),
+)].sort();
 
 // Sample a signature of every path and transform for ~3.6 s and count the
 // distinct states. One state means the figure never moved.

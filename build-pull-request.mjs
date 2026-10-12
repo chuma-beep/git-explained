@@ -151,7 +151,8 @@ function clutter() {
   out.push(S(k.slabOf(desk, 0, 3.4, P, 4, 0.5), { tone: "mid" }));
   out.push(L(k.planOutline(k.insetPlan(desk, 1.6), 3.4, P), { tone: "lo" }));
   out.push(k.faceTextSvg(k.topMatrix([desk.x + desk.w / 2, desk.y + 4], 3.5, P, "x"), "review", { size: 3.4, tone: "faint", anchor: "middle" }));
-  out.push(`<g data-btn>${S(k.cylinder(desk.x + desk.w / 2, desk.y + 14, 5.6, 3.4, 2.8, P, 24), { tone: "hi", lit: true })}</g>`);
+  const [hx, hy] = at([desk.x + desk.w / 2, desk.y + 14, 3.4]);
+  out.push(`<g data-btn>${S(k.cylinder(desk.x + desk.w / 2, desk.y + 14, 5.6, 3.4, 2.8, P, 24), { tone: "hi", lit: true })}<circle class="iso-hit" cx="${hx}" cy="${hy}" r="14" pointer-events="all"/></g>`);
   // a signal gantry over the main line
   const bx = 88;
   for (const y of [MAIN_Y - 14, MAIN_Y + 14]) {
@@ -318,6 +319,7 @@ const btn = svg.querySelector("[data-btn]");
 btn.style.cursor = "pointer";
 btn.addEventListener("click", () => poke());
 stage.addEventListener("keydown", (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); poke(); } });
+stage.addEventListener("click", () => poke());
 paint();
 armG.innerHTML = armSvg(-1.45);
 lampG.innerHTML = dotsSvg([iso([GATE_X + 4, MAIN_Y, 42.9], P)], { size: 0.95, tone: "faint" });
@@ -336,7 +338,7 @@ const body = navHtml("pr", "Git pull request", "the review gate") + k.plateHtml(
     { mark: "line", label: "Desk: approve the review (click or space)" },
   ],
   caption: "A pull request is a gate, not a move. D and E sit on the branch road and cannot reach main on their own: the barrier is down and the lamp is dark. Once a reviewer clears it, the barrier lifts, the wagons run onto main, and M appears with two parents, C and E.",
-  body: '<div class="iso-stage" tabindex="0" role="group" aria-label="Pull request: a branch merging into main through a review gate">' + svg + "</div>",
+  body: '<div class="iso-stage" tabindex="0" data-touch-hint="Tap the button to clear review" role="group" aria-label="Pull request: a branch merging into main through a review gate">' + svg + "</div>",
 });
 
 const page = k.pageHtml({ title: "Git pull requests", theme, body, script: kitScript() + live + THEME_JS })

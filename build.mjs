@@ -524,12 +524,16 @@ function steer(id) {
   steer.t = setTimeout(() => { touring = !still.matches; clock = 0; run(); }, 3600);
 }
 
-stage.addEventListener("pointermove", (e) => {
+// Aim HEAD from a point on the figure. On a touch screen there is no hover,
+// so pointerdown also steers, and a plain tap then works.
+function aimAt(e) {
   const box = svg.getBoundingClientRect();
   const share = ((e.clientX - box.left) / box.width - 0.2) / 0.6;
   const idx = Math.max(0, Math.min(ORDER.length - 1, Math.round(share * (ORDER.length - 1))));
   steer(ORDER[idx]);
-});
+}
+stage.addEventListener("pointermove", aimAt);
+stage.addEventListener("pointerdown", aimAt);
 stage.addEventListener("keydown", (e) => {
   const i = ORDER.indexOf(head); let to = null;
   if (e.key === "ArrowRight" || e.key === "ArrowUp") to = Math.min(ORDER.length - 1, i + 1);
@@ -560,7 +564,7 @@ const body = navHtml("switchyard", "Git switchyard", "commits as wagons") + k.pl
     { mark: "line", label: "Bench: sleepers, ballast bin and oil for the yard" },
   ],
   caption: "Commits are wagons, branches are roads. main runs A-B-C-F; feat leaves the line at the west points, exactly where B stands, and runs D-E. F is a merge: it has two parents, C and E. The pointer board on the right holds main at F and feat at E.",
-  body: '<div class="iso-stage" tabindex="0" role="slider" aria-label="Git switchyard: arrow keys move HEAD" aria-valuemin="0" aria-valuemax="5" aria-valuenow="2">' + svg + "</div>",
+  body: '<div class="iso-stage" tabindex="0" data-touch-hint="Drag or tap a wagon to move HEAD" role="slider" aria-label="Git switchyard: arrow keys move HEAD" aria-valuemin="0" aria-valuemax="5" aria-valuenow="2">' + svg + "</div>",
 });
 
 const page = k.pageHtml({ title: "Git switchyard", theme, body, script: kitScript() + live + THEME_JS })

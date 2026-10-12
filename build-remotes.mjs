@@ -395,7 +395,7 @@ setText(describe());
 `;
 
 const body = navHtml("remotes", "Git remotes", "push &amp; pull") + k.plateHtml({
-  fig: "Fig 3",
+  fig: "Fig 4",
   title: "Remotes — push & pull",
   hint: "Click the desk buttons · keys p / l / f",
   readout: "in sync",

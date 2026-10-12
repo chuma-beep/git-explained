@@ -6,10 +6,14 @@ Open a figure and read its document together.
 
 | Document | Figure | Subject |
 |---|---|---|
-| [branch-and-merge.md](branch-and-merge.md) | Figure 1 | Commits, branches, and merges |
-| [remotes.md](remotes.md) | Figure 2 | Push, fetch, and pull |
-| [rebase.md](rebase.md) | Figure 3 | Rebase |
-| [pull-request.md](pull-request.md) | Figure 4 | Pull requests |
+| [staging.md](staging.md) | Figure 1 | The working directory, the staging area, and the commit |
+| [branch-and-merge.md](branch-and-merge.md) | Figure 2 | Commits, branches, and merges |
+| [clone.md](clone.md) | Figure 3 | Clone, and tracking branches |
+| [remotes.md](remotes.md) | Figure 4 | Push, fetch, and pull |
+| [conflicts.md](conflicts.md) | Figure 5 | Conflicts, and how to resolve them |
+| [rebase.md](rebase.md) | Figure 6 | Rebase |
+| [pull-request.md](pull-request.md) | Figure 7 | Pull requests |
+| [tags.md](tags.md) | Figure 8 | Tags |
 
 The figures are HTML documents in this repository.
 Open `index.html` in a browser.

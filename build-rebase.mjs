@@ -382,7 +382,7 @@ setText(describe());
 `;
 
 const body = navHtml("rebase", "Git rebase", "replay on a new base") + k.plateHtml({
-  fig: "Fig 4",
+  fig: "Fig 6",
   title: "Rebase — replay on a new base",
   hint: "Click the lever or press r to rebase",
   readout: "before",

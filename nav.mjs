@@ -46,9 +46,12 @@ export const NAV_CSS = `
 export const FIGURES = [
   { key: "staging", label: "Staging", href: "staging-light.html", alt: "staging.html" },
   { key: "switchyard", label: "Branch & merge", href: "index.html", alt: "git-switchyard-light.html" },
+  { key: "clone", label: "Clone", href: "clone-light.html", alt: "clone.html" },
   { key: "remotes", label: "Remotes", href: "remotes-light.html", alt: "remotes.html" },
+  { key: "conflicts", label: "Conflicts", href: "conflicts-light.html", alt: "conflicts.html" },
   { key: "rebase", label: "Rebase", href: "rebase-light.html", alt: "rebase.html" },
   { key: "pr", label: "Pull request", href: "pull-request-light.html", alt: "pull-request.html" },
+  { key: "tags", label: "Tags", href: "tags-light.html", alt: "tags.html" },
 ];
 
 export function navHtml(current, title, sub) {

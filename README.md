@@ -1,6 +1,6 @@
 # Git, explained as a working machine
 
-Four interactive figures that explain git by building it as a real object.
+Eight interactive figures that explain git and GitHub by building them as real objects.
 Every commit is a wagon, every branch is a road, and the concepts are the
 mechanism of a rail yard rather than boxes-and-arrows.
 
@@ -16,10 +16,16 @@ from the filesystem — no server needed.
 
 | Page | Object | The idea |
 |---|---|---|
+| [`staging.html`](staging.html) | **Packing bench** — bench, tray, press | The three areas. You edit on the bench (working directory), `git add` moves a change to the tray (staging area), and `git commit` seals the tray into a crate on the rack. A change left on the bench is not in the commit, however often you save the file. |
 | [`index.html`](index.html) | **Switchyard** — a signal-box junction | Commits are wagons, branches are roads. `main` runs A‑B‑C‑F, `feat` leaves the line exactly where B stands and runs D‑E, and F is a merge commit with two parents. HEAD rides the rails. |
+| [`clone.html`](clone.html) | **Mill that makes copies** | `git clone` copies the whole history, not just the files, and adds `origin` and `origin/main`. Two arms on a board show your branch and the server as you last saw it. |
 | [`remotes.html`](remotes.html) | **Goods yard with two bays** | A remote is not a cloud, it is another copy of your wagons. `push` lifts a wagon to the far bay, `fetch` downloads without merging, `pull` also puts it on your road. |
+| [`conflicts.html`](conflicts.html) | **Two roads into one berth** | A conflict is not a git fault. Two branches change the same line, so git has two answers for one place and stops. A lamp is red until a person edits the file; then it is green. |
 | [`rebase.html`](rebase.html) | **Permanent-way gantry over two beds** | Rebase does not merge. It lifts D and E off the old base and replays them on B, so they return as D′ and E′ — same changes, new commit ids, straight history, no merge commit. |
 | [`pull-request.html`](pull-request.html) | **Goods gate with a review lamp** | A pull request is a gate, not a move. D and E cannot reach `main` on their own: the barrier is down until a reviewer clears it, then they run through and M appears with two parents. |
+| [`tags.html`](tags.html) | **Plate press on one road** | A branch name moves when you commit; a tag does not. `git tag v1.0` rivets a plate to one commit and leaves it there, which is why a release is a tag. |
+
+Read them in that order. Figure 1 is the one to start with.
 
 ## Who it is for
 
@@ -38,10 +44,14 @@ second language.
 
 | Document | Figure |
 |---|---|
+| [staging.md](docs/staging.md) | The working directory, the staging area, and the commit |
 | [branch-and-merge.md](docs/branch-and-merge.md) | Commits, branches, and merges |
+| [clone.md](docs/clone.md) | Clone, and tracking branches |
 | [remotes.md](docs/remotes.md) | Push, fetch, and pull |
+| [conflicts.md](docs/conflicts.md) | Conflicts, and how to resolve them |
 | [rebase.md](docs/rebase.md) | Rebase |
 | [pull-request.md](docs/pull-request.md) | Pull requests |
+| [tags.md](docs/tags.md) | Tags |
 
 Check the documents with the STE tool:
 

@@ -27,6 +27,26 @@ commit is a real commit with two parents. Experienced developers get the
 consequences: rebase rewrites ids, push copies rather than moves, and fetch is
 not pull.
 
+## Written explanation
+
+Each figure has a written counterpart in [`docs/`](docs/index.md), in
+Simplified Technical English (ASD-STE100). STE keeps sentences short and uses
+one term for one thing, so the text is easy to translate and easy to read in a
+second language.
+
+| Document | Figure |
+|---|---|
+| [branch-and-merge.md](docs/branch-and-merge.md) | Commits, branches, and merges |
+| [remotes.md](docs/remotes.md) | Push, fetch, and pull |
+| [rebase.md](docs/rebase.md) | Rebase |
+| [pull-request.md](docs/pull-request.md) | Pull requests |
+
+Check the documents with the STE tool:
+
+```sh
+python3 ~/.claude/skills/simplified-technical-english/scripts/ste_check.py --mode mixed docs/*.md
+```
+
 ## Interaction
 
 Every figure responds to the pointer and the keyboard, settles when you leave
